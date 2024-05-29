@@ -10,6 +10,8 @@
 #include <dxgi1_4.h>
 #include <tchar.h>
 #include <functional>
+#include <chrono>
+#include <thread>
 
 
 #include "imgui/imgui.h"
@@ -26,3 +28,6 @@
 
 #define NUM_FRAMES_IN_FLIGHT 3
 #define NUM_BACK_BUFFERS 3
+
+using namespace std;
+using namespace std::chrono_literals;

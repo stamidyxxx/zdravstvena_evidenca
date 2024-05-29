@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "handler/handler.h"
 #include "sqldriver/driver.h"
+#include "encryption/encryption.h"
 
 int main(int, char**)
 {
