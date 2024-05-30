@@ -27,16 +27,20 @@ bool Driver::Run()
 void Driver::MainLoop()
 {
 	m_screen_size = ImGui::GetIO().DisplaySize;
-	ImVec2 container_size = m_screen_size / ImVec2(3, 3);
-	ImVec2 center(m_screen_size.x * 0.5f, m_screen_size.y * 0.5f);
-	ImVec2 startPos(center.x - container_size.x * 0.5f, center.y - container_size.y * 0.5f);
+
+	m_logged_in = true;
+
 
 	if (!m_logged_in)
 	{
+		ImVec2 container_size = m_screen_size / ImVec2(3, 3);
+		ImVec2 center(m_screen_size.x * 0.5f, m_screen_size.y * 0.5f);
+		ImVec2 startPos(center.x - container_size.x * 0.5f, center.y - container_size.y * 0.5f);
+
 		if (m_register_prompt)
 		{
 			ImGui::SetCursorScreenPos(startPos);
-			if (ImGui::BeginChild("register_child", container_size, ImGuiChildFlags_Border, ImGuiWindowFlags_NoCollapse & ImGuiWindowFlags_NoMove & ImGuiWindowFlags_NoScrollbar & ImGuiWindowFlags_NoTitleBar & ImGuiWindowFlags_NoScrollWithMouse))
+			if (ImGui::BeginChild("##register_child", container_size, ImGuiChildFlags_Border, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollWithMouse))
 			{
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + container_size.y * 0.10f));
 				static char username[32] = "";
@@ -54,7 +58,7 @@ void Driver::MainLoop()
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
 				ImGui::Text("Confirm password:");
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY()));
-				ImGui::InputTextEx("##ConfirmPassword", NULL, confirmpassword, sizeof(char) * 32, ImVec2(container_size.x / 2, 20), ImGuiInputTextFlags_Password);
+				bool skip_register_button = ImGui::InputTextEx("##ConfirmPassword", NULL, confirmpassword, sizeof(char) * 32, ImVec2(container_size.x / 2, 20), ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue);
 
 				if (m_login_error != "")
 				{
@@ -64,7 +68,7 @@ void Driver::MainLoop()
 				}
 
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
-				if (ImGui::Button("Register", ImVec2(container_size.x / 2, 20)))
+				if (ImGui::Button("Register", ImVec2(container_size.x / 2, 20)) || skip_register_button)
 				{
 					if (strlen(username) < 4)
 					{
@@ -93,7 +97,7 @@ void Driver::MainLoop()
 
 register_end:
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
-				if (ImGui::Button("Back to login", ImVec2(container_size.x / 2, 20)))
+				if (ImGui::TextSelectable("Back to login"))
 					m_register_prompt = false;
 
 				ImGui::EndChild();
@@ -103,7 +107,7 @@ register_end:
 		{
 			ImGui::SetCursorScreenPos(startPos);
 
-			if (ImGui::BeginChild("login_child", container_size, ImGuiChildFlags_Border, ImGuiWindowFlags_NoCollapse & ImGuiWindowFlags_NoMove & ImGuiWindowFlags_NoScrollbar & ImGuiWindowFlags_NoTitleBar & ImGuiWindowFlags_NoScrollWithMouse))
+			if (ImGui::BeginChild("##login_child", container_size, ImGuiChildFlags_Border, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollWithMouse))
 			{
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + container_size.y * 0.10f));
 				static char username[32] = "";
@@ -115,7 +119,7 @@ register_end:
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
 				ImGui::Text("Password:");
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY()));
-				ImGui::InputTextEx("##Password", NULL, password, sizeof(char) * 32, ImVec2(container_size.x / 2, 20), ImGuiInputTextFlags_Password);
+				bool skip_login_button = ImGui::InputTextEx("##Password", NULL, password, sizeof(char) * 32, ImVec2(container_size.x / 2, 20), ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue);
 
 
 				if (m_login_error != "")
@@ -126,19 +130,8 @@ register_end:
 				}
 
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
-				if (ImGui::Button("Log in", ImVec2(container_size.x / 2, 20)))
+				if (ImGui::Button("Log in", ImVec2(container_size.x / 2, 20)) || skip_login_button)
 				{
-					if (strlen(username) < 4)
-					{
-						m_login_error = "Username is too short!";
-						goto login_end;
-					}
-					if (strlen(password) < 8)
-					{
-						m_login_error = "Password is too short!";
-						goto login_end;
-					}
-
 					std::unique_ptr<sql::ResultSet> results(driver.ExecuteQuery("SELECT * FROM uporabnik WHERE ime = '{}'", username));
 					if (results->rowsCount() > 0)
 					{
@@ -151,21 +144,62 @@ register_end:
 								m_login_error = "";
 							}
 							else
-								m_login_error = "Invalid Password provided for user (" + string(username) + ")";
+								m_login_error = "Invalid Password provided for " + string(username);
 						}
 					}
 					else
 						m_login_error = "Invalid Username";
 				}
-login_end:
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
-				if (ImGui::Button("New account", ImVec2(container_size.x / 2, 20)))
+				if (ImGui::TextSelectable("New account"))
 					m_register_prompt = true;
 
 				ImGui::EndChild();
 			}
 		}
+		return;
 	}
+
+	std::unique_ptr<sql::ResultSet> results(driver.ExecuteQuery("SELECT * FROM pacient"));
+	if (results == nullptr)
+		return;
+
+	ImGui::BeginTabBar("##topnavbar");
+
+	if (ImGui::BeginTabItem("Pacienti"))
+	{
+		if (ImGui::BeginListBox("##pacienti", ImVec2(m_screen_size.x - m_screen_size.x * 0.01f, m_screen_size.y - m_screen_size.y * 0.1f)))
+			if (ImGui::BeginTable("##pacienti", 5))
+			{
+				while (results->next())
+				{
+					ImGui::TableNextRow();
+					results->getRowId(1);
+					for (int column = 0; column < 3; column++)
+					{
+						ImGui::TableSetColumnIndex(column);
+						ImGui::Text("Row %d Column %d", row, column);
+					}
+				}
+				ImGui::EndTable();
+			}
+
+
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("test2"))
+	{
+		ImGui::Text("test2");
+		ImGui::EndTabItem();
+	}
+	if (ImGui::BeginTabItem("test3"))
+	{
+		ImGui::Text("test3");
+		ImGui::EndTabItem();
+	}
+
+
+	ImGui::EndTabBar();
 
 	std::unique_ptr<sql::ResultSet> results(driver.ExecuteQuery("SELECT * FROM oddelek"));
 	if (results == nullptr)

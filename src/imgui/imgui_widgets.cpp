@@ -1567,6 +1567,40 @@ void ImGui::SeparatorText(const char* label)
     SeparatorTextEx(0, label, FindRenderedTextEnd(label), 0.0f);
 }
 
+IMGUI_API bool ImGui::TextSelectable(const char* text)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiStyle style = g.Style;
+    ImGuiWindow* window = g.CurrentWindow;
+    ImGuiID id = window->GetID(text);
+
+    const ImVec2 pos = window->DC.CursorPos;
+    ImVec2 size = CalcTextSize(text);
+    ImRect bb(pos, pos + size);
+
+    if (!ItemAdd(bb, id, NULL, ImGuiItemFlags_None))
+        return false;
+
+    bool hovered, held;
+    bool pressed = ButtonBehavior(bb, id, &hovered, &held);
+    if (pressed)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, style.Colors[ImGuiCol_Text] + ImVec4(0.15f, 0.15f, 0.15f, 0.f));
+        ImGui::Text(text);
+        ImGui::PopStyleColor();
+    }
+    else if (hovered)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, style.Colors[ImGuiCol_Text] - ImVec4(0.15f, 0.15f, 0.15f, 0.f));
+        ImGui::Text(text);
+        ImGui::PopStyleColor();
+    }
+    else
+        ImGui::Text(text);
+
+    return pressed;
+}
+
 // Using 'hover_visibility_delay' allows us to hide the highlight and mouse cursor for a short time, which can be convenient to reduce visual noise.
 bool ImGui::SplitterBehavior(const ImRect& bb, ImGuiID id, ImGuiAxis axis, float* size1, float* size2, float min_size1, float min_size2, float hover_extend, float hover_visibility_delay, ImU32 bg_col)
 {
