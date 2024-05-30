@@ -73,8 +73,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
-    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:\Users\vklemencic\vcpkg\packages\openssl_x64-windows\include;C:\Users\vklemencic\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\packages\openssl_x64-windows\lib;C:\Users\vklemencic\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\include;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\lib;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
@@ -83,8 +83,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
-    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:\Users\vklemencic\vcpkg\packages\openssl_x64-windows\include;C:\Users\vklemencic\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\packages\openssl_x64-windows\lib;C:\Users\vklemencic\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\include;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\lib;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <VcpkgInstalledDir>..\..\vcpkg</VcpkgInstalledDir>

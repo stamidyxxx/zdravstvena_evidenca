@@ -164,48 +164,33 @@ register_end:
 	if (results == nullptr)
 		return;
 
-	ImGui::BeginTabBar("##topnavbar");
-
-	if (ImGui::BeginTabItem("Pacienti"))
+	if (ImGui::BeginTabBar("##topnavbar"))
 	{
-		if (ImGui::BeginListBox("##pacienti", ImVec2(m_screen_size.x - m_screen_size.x * 0.01f, m_screen_size.y - m_screen_size.y * 0.1f)))
-			if (ImGui::BeginTable("##pacienti", 5))
-			{
-				while (results->next())
+		if (ImGui::BeginTabItem("Pacienti"))
+		{
+			ImGui::Spacing(10);
+				if (ImGui::BeginTable("##pacienti", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_Sortable))
 				{
-					ImGui::TableNextRow();
-					results->getRowId(1);
-					for (int column = 0; column < 3; column++)
+					ImGui::TableSetupColumn("ID");
+					ImGui::TableSetupColumn("ime");
+					ImGui::TableSetupColumn("priimek");
+					ImGui::TableSetupColumn("naslov");
+					ImGui::TableSetupColumn("tel_st");
+					while (results->next()) // row
 					{
-						ImGui::TableSetColumnIndex(column);
-						ImGui::Text("Row %d Column %d", row, column);
+						ImGui::TableNextRow();
+						for (int column = 0; column < 5; column++) // column
+						{
+							ImGui::TableSetColumnIndex(column);
+							ImGui::Text("Data %s Column %d", results->getString(column + 1), column);
+						}
 					}
+					ImGui::EndTable();
 				}
-				ImGui::EndTable();
-			}
-
-
-		ImGui::EndTabItem();
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
 	}
-	if (ImGui::BeginTabItem("test2"))
-	{
-		ImGui::Text("test2");
-		ImGui::EndTabItem();
-	}
-	if (ImGui::BeginTabItem("test3"))
-	{
-		ImGui::Text("test3");
-		ImGui::EndTabItem();
-	}
-
-
-	ImGui::EndTabBar();
-
-	std::unique_ptr<sql::ResultSet> results(driver.ExecuteQuery("SELECT * FROM oddelek"));
-	if (results == nullptr)
-		return;
-
-
 }
 
 sql::ResultSet* Driver::ExecuteQuery(const string& query)
