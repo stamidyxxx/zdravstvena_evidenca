@@ -160,10 +160,6 @@ register_end:
 		return;
 	}
 
-	std::unique_ptr<sql::ResultSet> results(driver.ExecuteQuery("SELECT * FROM pacient"));
-	if (results == nullptr)
-		return;
-
 	if (ImGui::BeginTabBar("##topnavbar"))
 	{
 		if (ImGui::BeginTabItem("Pacienti"))
@@ -176,15 +172,61 @@ register_end:
 					ImGui::TableSetupColumn("priimek");
 					ImGui::TableSetupColumn("naslov");
 					ImGui::TableSetupColumn("tel_st");
-					while (results->next()) // row
+					ImGui::TableHeadersRow();
+					for (auto& pacient : m_pacienti) // row
 					{
-						ImGui::TableNextRow();
+						ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
 						for (int column = 0; column < 5; column++) // column
 						{
 							ImGui::TableSetColumnIndex(column);
-							ImGui::Text("Data %s Column %d", results->getString(column + 1), column);
+							ImGui::Text(pacient.get(column).c_str());
 						}
 					}
+
+					if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+					{
+						if (sortSpecs->SpecsDirty)
+						{
+							std::sort(
+								m_pacienti.begin(), m_pacienti.end(),
+								[&sortSpecs](const Pacient& lhs, const Pacient& rhs) -> bool {
+									for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
+									{
+										const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+										switch (currentSpecs->ColumnIndex)
+										{
+										case 0: {
+											bool sort = lhs.m_id > rhs.m_id ? true : false;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 1: {
+											bool sort = lhs.m_ime.compare(rhs.m_ime) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 2: {
+											bool sort = lhs.m_priimek.compare(rhs.m_priimek) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 3: {
+											bool sort = lhs.m_naslov.compare(rhs.m_naslov) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 4: {
+											bool sort = lhs.m_tel_st.compare(rhs.m_tel_st) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+
+										default: {
+											return false;
+											  }; break;
+										}
+									}
+								});
+						}
+
+						sortSpecs->SpecsDirty = false;
+					}
+
 					ImGui::EndTable();
 				}
 			ImGui::EndTabItem();
