@@ -163,9 +163,29 @@ register_end:
 	if (ImGui::BeginTabBar("##topnavbar"))
 	{
 		if (ImGui::BeginTabItem("Pacienti"))
-		{
-			ImGui::Spacing(10);
-				if (ImGui::BeginTable("##pacienti", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_Sortable))
+		{				
+			static string search_term = "";
+			ImGui::Spacing();
+			ImGui::Text("Search:");
+			ImGui::InputText("##SearchBar", &search_term, ImVec2(m_screen_size.x * 0.2f, 20), 32);
+			
+			m_filtered_pacienti.clear();
+			if (!search_term.empty() || search_term != "")
+			{
+				for (auto& p : m_pacienti)
+				{
+					const auto it = search(p.m_priimek.begin(), p.m_priimek.end(), search_term.begin(), search_term.end(), 
+						[](char a, char b) {
+							return tolower(a) == tolower(b);
+						});
+					if (it != p.m_priimek.end())
+						m_filtered_pacienti.push_back(p);
+				}
+			}
+			else
+				m_filtered_pacienti.insert(m_filtered_pacienti.end(), m_pacienti.begin(), m_pacienti.end());
+
+				if (ImGui::BeginTable("##pacienti", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_Sortable | ImGuiTableFlags_SizingFixedFit))
 				{
 					ImGui::TableSetupColumn("ID");
 					ImGui::TableSetupColumn("ime");
@@ -173,7 +193,7 @@ register_end:
 					ImGui::TableSetupColumn("naslov");
 					ImGui::TableSetupColumn("tel_st");
 					ImGui::TableHeadersRow();
-					for (auto& pacient : m_pacienti) // row
+					for (auto& pacient : m_filtered_pacienti) // row
 					{
 						ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
 						for (int column = 0; column < 5; column++) // column
@@ -188,7 +208,7 @@ register_end:
 						if (sortSpecs->SpecsDirty)
 						{
 							std::sort(
-								m_pacienti.begin(), m_pacienti.end(),
+								m_filtered_pacienti.begin(), m_filtered_pacienti.end(),
 								[&sortSpecs](const Pacient& lhs, const Pacient& rhs) -> bool {
 									for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
 									{

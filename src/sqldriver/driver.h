@@ -24,7 +24,7 @@ public:
 		case 2: return m_priimek;
 		case 3: return m_naslov;
 		case 4: return m_tel_st;
-		default: return 0;
+		default: return "";
 		} 
 	}
 };
@@ -42,10 +42,11 @@ public:
 	int ExecuteUpdate(const string& query, Args&&... args);
 
 	vector<Pacient> m_pacienti;
+	vector<Pacient> m_filtered_pacienti;
 
 private:
-	sql::Driver* g_sqlDriver;
-	sql::Connection* g_sqlConnection;
+	sql::Driver* g_sqlDriver = nullptr;
+	sql::Connection* g_sqlConnection = nullptr;
 
 	bool m_logged_in = false;
 	bool m_register_prompt = false;

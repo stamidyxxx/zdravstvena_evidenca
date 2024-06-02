@@ -1,4 +1,3 @@
-#pragma once
 #include <mariadb/conncpp.hpp>
 #include <iostream>
 #include <string>
@@ -18,6 +17,7 @@
 #include "imgui/impl/imgui_impl_win32.h"
 #include "imgui/impl/imgui_impl_dx12.h"
 #include "imgui/imgui_internal.h"
+#include "imgui/imgui_stdlib.h"
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
 #endif
