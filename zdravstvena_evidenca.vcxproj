@@ -166,6 +166,7 @@
     <ClCompile Include="src\encryption\encryption.cpp" />
     <ClCompile Include="src\handler\handler.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
+    <ClCompile Include="src\imgui\imgui_datechooser.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\imgui\imgui_freetype.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="src\handler\handler.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
+    <ClInclude Include="src\imgui\imgui_datechooser.h" />
     <ClInclude Include="src\imgui\imgui_freetype.h" />
     <ClInclude Include="src\imgui\imgui_internal.h" />
     <ClInclude Include="src\imgui\imgui_stdlib.h" />
