@@ -24,6 +24,13 @@ bool Driver::Run()
 	return false;
 }
 
+static const char* item_getter(const std::vector<std::string>& items, int index) {
+	if (index >= 0 && index < (int)items.size()) {
+		return items[index].c_str();
+	}
+	return "N/A";
+}
+
 void Driver::MainLoop()
 {
 	m_screen_size = ImGui::GetIO().DisplaySize;
@@ -164,6 +171,8 @@ register_end:
 	{
 		static Pacient selected_pacient;
 		static int selected_row = -1;
+		static Zapisnik selected_zapisnik;
+
 
 		if (ImGui::BeginTabItem("Pacienti"))
 		{				
@@ -209,6 +218,7 @@ register_end:
 						{
 							selected_row = row; 
 							selected_pacient = pacient;
+							selected_zapisnik = Zapisnik();
 						}
 					}
 				}
@@ -274,11 +284,6 @@ register_end:
 		}
 		if (ImGui::BeginTabItem("Pacient", NULL, selected_row != -1 ? ImGuiTabItemFlags_SetSelected : 0))
 		{
-			if (!selected_row)
-			{
-
-			}
-
 			static tm date = { };
 			if (!date.tm_year)
 				ImGui::SetDateToday(&date);
@@ -300,130 +305,177 @@ register_end:
 				else
 					ExecuteUpdate("UPDATE pacient SET ime = '{}', priimek = '{}', naslov = '{}', tel_st = '{}' WHERE id = {};", selected_pacient.m_ime, selected_pacient.m_priimek, selected_pacient.m_naslov, selected_pacient.m_tel_st, selected_pacient.m_id);
 			}
-			
-			ImGui::Spacing(3);
-
-			auto cursor_pos_end = ImGui::GetCursorPos();
-
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, cursor_pos_start.y));
-			ImGui::Text("Date:");
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
-			ImGui::DateChooser("##datum_termin", date);
-
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::Text("Ure:");
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
-			ImGui::SliderInt("##ure_termin", &date.tm_hour, 1, 24);
-
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::Text("Minute:");
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
-			ImGui::SliderInt("##minute_termin", &date.tm_min, 1, 60);
-
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::Text("Doktor: ");
-			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
-			if (ImGui::BeginCombo("##doktor_termin", selected_doktor_termin.get_ime_priimek().c_str()))
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##pacient"))
 			{
-				for (auto& doktor : m_doktroji)
+				selected_row = -1;
+				selected_zapisnik = Zapisnik();
+				selected_pacient = Pacient();
+			}
+			if (selected_row != -1)
+			{
+				ImGui::Spacing(3);
+
+				auto cursor_pos_end = ImGui::GetCursorPos();
+
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, cursor_pos_start.y));
+				ImGui::Text("Date:");
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+				ImGui::DateChooser("##datum_termin", date);
+
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				ImGui::Text("Ure:");
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+				ImGui::SliderInt("##ure_termin", &date.tm_hour, 1, 24);
+
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				ImGui::Text("Minute:");
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+				ImGui::SliderInt("##minute_termin", &date.tm_min, 1, 60);
+
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				ImGui::Text("Doktor: ");
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+				if (ImGui::BeginCombo("##doktor_termin", selected_doktor_termin.get_ime_priimek().c_str()))
 				{
-					if (ImGui::Selectable(doktor.get_ime_priimek().c_str()))
-						selected_doktor_termin = doktor;
+					for (auto& doktor : m_doktroji)
+					{
+						if (ImGui::Selectable(doktor.get_ime_priimek().c_str()))
+							selected_doktor_termin = doktor;
+					}
+
+					ImGui::EndCombo();
+				}
+				ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+				if (ImGui::Button("Add##termin"))
+				{
+					auto date_formated = date_to_sql(date);
+					ExecuteUpdate("INSERT INTO termin (cas_datum, doktor_id, pacient_id) VALUES ('{}', {}, {});", date_formated, selected_doktor_termin.m_id, selected_pacient.m_id);
 				}
 
+
+				ImGui::SeparatorText("Termini");
+				if (ImGui::BeginTable("##termini", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
+				{
+					ImGui::TableSetupColumn("ID");
+					ImGui::TableSetupColumn("cas");
+					ImGui::TableSetupColumn("doktor ime");
+					ImGui::TableSetupColumn("doktor priimek");
+					ImGui::TableHeadersRow();
+
+					for (int row = 0; row < m_termini.size(); ++row) // row
+					{
+						auto termin = m_termini[row];
+						if (termin.m_pacient_id != selected_pacient.m_id)
+							continue;
+
+						Doktor doktor;
+						for (auto& d : m_doktroji)
+							if (d.m_id == termin.m_doktor_id)
+								doktor = d;
+
+						ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+						for (int column = 0; column < 4; column++) // column
+						{
+							ImGui::TableSetColumnIndex(column);
+							if (column == 0 || column == 1)
+								ImGui::Text(termin.get(column).c_str());
+							else if (column == 2 || column == 3)
+								ImGui::Text(doktor.get(column - 1).c_str());
+						}
+					}
+					if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+					{
+						if (sortSpecs->SpecsDirty)
+						{
+							std::sort(
+								m_termini.begin(), m_termini.end(),
+								[&sortSpecs](const Termin& lhs, const Termin& rhs) -> bool {
+									for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
+									{
+										const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+										switch (currentSpecs->ColumnIndex)
+										{
+										case 0: {
+											if (lhs.m_id == rhs.m_id)
+												return false;
+											bool sort = lhs.m_id > rhs.m_id ? true : false;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 1: {
+											if (lhs.m_cas_datum == rhs.m_cas_datum)
+												return false;
+											bool sort = lhs.m_cas_datum.compare(rhs.m_cas_datum) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 2: {
+											if (lhs.m_doktor_id == rhs.m_doktor_id)
+												return false;
+											bool sort = lhs.m_doktor_id > rhs.m_doktor_id ? true : false;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 3: {
+											if (lhs.m_pacient_id == rhs.m_pacient_id)
+												return false;
+											bool sort = lhs.m_pacient_id > rhs.m_pacient_id ? true : false;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+
+										default: {
+											return false;
+										}; break;
+										}
+									}
+									return false;
+								});
+						}
+
+						sortSpecs->SpecsDirty = false;
+					}
+					ImGui::EndTable();
+				}
+			}
+
+			static bool novi_zapisnik = false;
+			ImGui::SeparatorText("Zapisnik");
+			cursor_pos_start = ImGui::GetCursorPos();
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			if (ImGui::BeginCombo("##zapisnik", novi_zapisnik ? "Novi" : selected_zapisnik.m_naslov.c_str()))
+			{
+				for (auto& z : m_zapisniki)
+					if (z.m_pacient_id == selected_pacient.m_id)
+						if (ImGui::Selectable(z.m_naslov.c_str()))
+						{
+							selected_zapisnik = z;
+							novi_zapisnik = false;
+						}
+
+				if (ImGui::Selectable("Novi"))
+				{
+					selected_zapisnik = Zapisnik();
+					novi_zapisnik = true;
+				}
 				ImGui::EndCombo();
 			}
+			ImGui::PushTextWrapPos(m_screen_size.x * 0.45f);
+			ImGui::TextWrapped(selected_zapisnik.m_opis.c_str());
+			ImGui::PopTextWrapPos();
+
+			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.5f, cursor_pos_start.y));
+			ImGui::Text("Naslov:");
 			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+			ImGui::InputText("##zapisnik_naslov", &selected_zapisnik.m_naslov);
 
-			if (ImGui::Button("Add##termin"))
-			{
-				auto date_formated = date_to_sql(date);
-				ExecuteUpdate("INSERT INTO termin (cas_datum, doktor_id, pacient_id) VALUES ('{}', {}, {});", date_formated, selected_doktor_termin.m_id, selected_pacient.m_id);
-			}
-			ImGui::SetCursorPos(cursor_pos_end);
-			if (ImGui::BeginTable("##termini", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
-			{
-				ImGui::TableSetupColumn("ID");
-				ImGui::TableSetupColumn("cas");
-				ImGui::TableSetupColumn("doktor ime");
-				ImGui::TableSetupColumn("doktor priimek");
-				ImGui::TableHeadersRow();
-
-				for (int row = 0; row < m_termini.size(); ++row) // row
-				{
-					auto termin = m_termini[row];
-					if (termin.m_pacient_id != selected_pacient.m_id)
-						continue;
-
-					Doktor doktor;
-					for (auto& d : m_doktroji)
-						if (d.m_id == termin.m_doktor_id)
-							doktor = d;
-
-					ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
-					for (int column = 0; column < 4; column++) // column
-					{
-						ImGui::TableSetColumnIndex(column);
-						if (column == 0 || column == 1)
-							ImGui::Text(termin.get(column).c_str());
-						else if (column == 2 || column == 3)
-							ImGui::Text(doktor.get(column - 1).c_str());
-					}
-				}
-				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
-				{
-					if (sortSpecs->SpecsDirty)
-					{
-						std::sort(
-							m_termini.begin(), m_termini.end(),
-							[&sortSpecs](const Termin& lhs, const Termin& rhs) -> bool {
-								for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
-								{
-									const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
-									switch (currentSpecs->ColumnIndex)
-									{
-									case 0: {
-										if (lhs.m_id == rhs.m_id)
-											return false;
-										bool sort = lhs.m_id > rhs.m_id ? true : false;
-										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
-									}; break;
-									case 1: {
-										if (lhs.m_cas_datum == rhs.m_cas_datum)
-											return false;
-										bool sort = lhs.m_cas_datum.compare(rhs.m_cas_datum) <= 0 ? false : true;
-										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
-									}; break;
-									case 2: {
-										if (lhs.m_doktor_id == rhs.m_doktor_id)
-											return false;
-										bool sort = lhs.m_doktor_id > rhs.m_doktor_id ? true : false;
-										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
-									}; break;
-									case 3: {
-										if (lhs.m_pacient_id == rhs.m_pacient_id)
-											return false;
-										bool sort = lhs.m_pacient_id > rhs.m_pacient_id ? true : false;
-										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
-									}; break;
-
-									default: {
-										return false;
-									}; break;
-									}
-								}
-								return false;
-							});
-					}
-
-					sortSpecs->SpecsDirty = false;
-				}
-				ImGui::EndTable();
-			}
+			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+			ImGui::Text("Opis:");
+			ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputTextMultiline("##zapisnik_opis", &selected_zapisnik.m_opis);
 
 			ImGui::EndTabItem();
 		}
@@ -480,12 +532,49 @@ int Driver::ExecuteUpdate(const string& query, Args&&... args)
 	return ExecuteUpdate(std::vformat(query, std::make_format_args(std::forward<Args>(args)...)));
 }
 
-string Driver::date_to_sql(tm& date)
+string Driver::date_to_sql(tm& date, bool include_time)
 {
 	char buffer[25];
 	date.tm_sec = 0;
-	std::strftime(buffer, sizeof(buffer), "%F %T", &date);
+	if (include_time)
+		std::strftime(buffer, sizeof(buffer), "%F %T", &date);
+	else
+		std::strftime(buffer, sizeof(buffer), "%F", &date);
 	return string(buffer);
+}
+
+bool Driver::GetDatabaseVariables()
+{
+	m_pacienti.clear();
+	m_termini.clear();
+	m_doktroji.clear();
+	m_zapisniki.clear();
+
+	std::unique_ptr<sql::ResultSet> results_pacient(driver.ExecuteQuery("SELECT * FROM pacient"));
+	if (results_pacient == nullptr)
+		return false;
+	while (results_pacient->next()) // row
+		m_pacienti.push_back(Pacient(results_pacient->getInt(1), string(results_pacient->getString(2)), string(results_pacient->getString(3)), string(results_pacient->getString(4)), string(results_pacient->getString(5))));
+
+	std::unique_ptr<sql::ResultSet> results_termin(driver.ExecuteQuery("SELECT * FROM termin"));
+	if (results_termin == nullptr)
+		return false;
+	while (results_termin->next()) // row
+		m_termini.push_back(Termin(results_termin->getInt(1), string(results_termin->getString(2)), results_termin->getInt(3), results_termin->getInt(4)));
+
+	std::unique_ptr<sql::ResultSet> results_doktor(driver.ExecuteQuery("SELECT * FROM doktor"));
+	if (results_doktor == nullptr)
+		return false;
+	while (results_doktor->next()) // row
+		m_doktroji.push_back(Doktor(results_doktor->getInt(1), string(results_doktor->getString(2)), string(results_doktor->getString(3)), string(results_doktor->getString(4)), results_doktor->getInt(5)));
+
+	std::unique_ptr<sql::ResultSet> results_zapisnik(driver.ExecuteQuery("SELECT * FROM zapisnik"));
+	if (results_zapisnik == nullptr)
+		return false;
+	while (results_zapisnik->next()) // row
+		m_zapisniki.push_back(Zapisnik(results_zapisnik->getInt(1), string(results_zapisnik->getString(2)), string(results_zapisnik->getString(3)), string(results_zapisnik->getString(4)), results_zapisnik->getInt(5)));
+
+	return true;
 }
 
 Driver driver;

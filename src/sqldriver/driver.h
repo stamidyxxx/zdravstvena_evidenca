@@ -100,6 +100,37 @@ public:
 	}
 };
 
+class Zapisnik
+{
+public:
+	int m_id;
+	string m_naslov;
+	string m_opis;
+	string m_datum;
+	int m_pacient_id;
+
+	Zapisnik(int m_id, const string& m_naslov, const string& m_opis, const string& m_datum, int m_pacient_id)
+		: m_id(m_id), m_naslov(m_naslov), m_opis(m_opis), m_datum(m_datum), m_pacient_id(m_pacient_id)
+	{
+	}
+	Zapisnik()
+		: m_id(-1), m_naslov(""), m_opis(""), m_datum(""), m_pacient_id(-1)
+	{
+	}
+
+	string get(size_t idx) {
+		switch (idx)
+		{
+		case 0: return to_string(m_id);
+		case 1: return m_naslov;
+		case 2: return m_opis;
+		case 3: return m_datum;
+		case 4: return to_string(m_pacient_id);
+		default: return "";
+		}
+	}
+};
+
 class Driver
 {
 public:
@@ -113,8 +144,9 @@ public:
 	template<typename... Args>
 	int ExecuteUpdate(const string& query, Args&&... args);
 
-	string date_to_sql(tm& date);
+	string date_to_sql(tm& date, bool include_time = true);
 
+	bool GetDatabaseVariables();
 
 	vector<Pacient> m_pacienti;
 	vector<Pacient> m_filtered_pacienti;
@@ -122,6 +154,9 @@ public:
 	vector<Termin> m_termini;
 
 	vector<Doktor> m_doktroji;
+
+	vector<Zapisnik> m_zapisniki;
+	vector<string> m_zapisniki_naslovi;
 
 private:
 	sql::Driver* g_sqlDriver = nullptr;
