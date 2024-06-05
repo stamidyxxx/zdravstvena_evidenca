@@ -3856,6 +3856,16 @@ ImGuiWindow::~ImGuiWindow()
     IM_ASSERT(DrawList == &DrawListInst);
     IM_DELETE(Name);
     ColumnsStorage.clear_destruct();
+
+    if (MultilineWrapStringDisplay != NULL) {
+        IM_FREE(MultilineWrapStringDisplay);
+    }
+    MultilineWrapStringDisplay = NULL;
+
+    if (MultilineWrapVtText != NULL) {
+        IM_FREE(MultilineWrapVtText);
+    }
+    MultilineWrapVtText = NULL;
 }
 
 static void SetCurrentWindow(ImGuiWindow* window)

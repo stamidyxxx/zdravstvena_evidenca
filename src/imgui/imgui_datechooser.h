@@ -38,6 +38,7 @@ namespace ImGui {
 	// Some helper methods (note that I cannot use tm directly in this hader file, so we can't initialize a static date directly with these methods)
 	IMGUI_API void SetDateZero(tm* date);
 	IMGUI_API void SetDateToday(tm* date);
+	IMGUI_API tm GetCurrentDate();
 
 
 	IMGUI_API void TestDateChooser(const char* dateFormat = "%d/%m/%Y", bool closeWhenMouseLeavesIt = true, const char* leftArrow = "<", const char* rightArrow = ">", const char* upArrowString = "   ^   ", const char* downArrowString = "   v   ");

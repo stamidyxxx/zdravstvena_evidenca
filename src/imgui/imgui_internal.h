@@ -1090,6 +1090,16 @@ struct IMGUI_API ImGuiInputTextState
     int                     ReloadSelectionStart;   // POSITIONS ARE IN IMWCHAR units *NOT* UTF-8 this is why this is not exposed yet.
     int                     ReloadSelectionEnd;
 
+    int                     MultilineWrapBackupCursorPos;
+    int                     MultilineWrapBackupStartSelection;
+    int                     MultilineWrapBackupEndSelection;
+    int                     MultilineWrapPixelSize;
+    int                     MultilineWrapOriginalBufSize;
+    bool                    MultilineWrapBufferOkForEdit = false;
+    bool                    MultilineWrapText = false;
+    bool                    MultilineWrapForceComputation = false;
+    char*                   MultilineWrapVtTextPtr = NULL;
+
     ImGuiInputTextState()                   { memset(this, 0, sizeof(*this)); }
     void        ClearText()                 { CurLenW = CurLenA = 0; TextW[0] = 0; TextA[0] = 0; CursorClamp(); }
     void        ClearFreeMemory()           { TextW.clear(); TextA.clear(); InitialTextA.clear(); }
@@ -2597,6 +2607,13 @@ struct IMGUI_API ImGuiWindow
     int                     MemoryDrawListVtxCapacity;
     bool                    MemoryCompacted;                    // Set when window extraneous data have been garbage collected
 
+    char*                   MultilineWrapVtText = NULL;         // String with \v
+    char*                   MultilineWrapStringDisplay = NULL;  // String with fake \n instead of \v, so we can view correct string when we don't have a state
+    int                     MultilineWrapLastWrapSize = 0;
+    bool                    MultilineWrapInit = true;
+    bool                    MultilineWrapStateInit = true;
+    bool                    MultilineWrapLastHadScrollbar = false;
+
 public:
     ImGuiWindow(ImGuiContext* context, const char* name);
     ~ImGuiWindow();
@@ -3456,7 +3473,7 @@ namespace ImGui
     IMGUI_API bool          DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max);
 
     // InputText
-    IMGUI_API bool          InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    IMGUI_API bool          InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback = NULL, void* user_data = NULL, bool multiline_wrap_text = false, bool* multiline_init = NULL);
     IMGUI_API void          InputTextDeactivateHook(ImGuiID id);
     IMGUI_API bool          TempInputText(const ImRect& bb, ImGuiID id, const char* label, char* buf, int buf_size, ImGuiInputTextFlags flags);
     IMGUI_API bool          TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImGuiDataType data_type, void* p_data, const char* format, const void* p_clamp_min = NULL, const void* p_clamp_max = NULL);

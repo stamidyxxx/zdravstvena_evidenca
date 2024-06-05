@@ -1,5 +1,6 @@
 #pragma once
 #include "../includes.h"
+#include "../imgui/imgui_freetype.h"
 
 using namespace std;
 

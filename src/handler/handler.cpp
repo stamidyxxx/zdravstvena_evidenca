@@ -229,6 +229,24 @@ int Handler::Run(function<void()> func)
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 
+
+    io.Fonts->AddFontDefault();
+    auto font_path = "C:\\Windows\\Fonts\\Arial.ttf";
+    static const ImWchar custom_ranges[] = {
+        0x20, 0xFFFF,
+        0
+    };
+
+    ImFontConfig config;
+    config.PixelSnapH = true;
+    config.OversampleH = 5;
+    config.OversampleV = 7;
+    config.RasterizerMultiply = 1.2f;
+    config.FontBuilderFlags = /*ImGuiFreeTypeBuilderFlags_Monochrome | ImGuiFreeTypeBuilderFlags_MonoHinting*/ ImGuiFreeTypeBuilderFlags_ForceAutoHint;
+
+    auto font_arial = io.Fonts->AddFontFromFileTTF(font_path, 13.f, &config, custom_ranges);
+    io.Fonts->Build();
+
     // Setup Dear ImGui style
     // Setup style
     ImGuiStyle& style = ImGui::GetStyle();
@@ -350,7 +368,11 @@ int Handler::Run(function<void()> func)
         _stprintf_s(title, _T("Zdravstvena baza - Luka Branda (%.1f FPS)"), io.Framerate);
         SetWindowText(hwnd, title);
         
+        ImGui::PushFont(font_arial);
+
         func();
+
+        ImGui::PopFont();
 
         ImGui::End();
         ImGui::Render();

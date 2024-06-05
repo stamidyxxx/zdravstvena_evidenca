@@ -3257,7 +3257,12 @@ const ImWchar*   ImFontAtlas::GetGlyphRangesDefault()
     static const ImWchar ranges[] =
     {
         0x0020, 0x00FF, // Basic Latin + Latin Supplement
-        0,
+        0x0100, 0x017F, // Latin Extended-A
+        0x0180, 0x024F, // Latin Extended-B
+        0x010C, 0x010D, // 'è' character range
+        0x0161, 0x0161, // 'š' character range
+        0x017E, 0x017E, // 'ž' character range
+        0
     };
     return &ranges[0];
 }

@@ -34,7 +34,7 @@ namespace ImGui {
     //# endif
     //};
 
-    inline static tm GetCurrentDate() {
+    tm GetCurrentDate() {
         time_t now; time(&now);
         return *localtime(&now);
     }
