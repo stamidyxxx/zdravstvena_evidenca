@@ -1,4 +1,5 @@
 ﻿#include "driver.h"
+#include "../imgui/imgui_stdlib.h"
 
 bool Driver::Run()
 {
@@ -29,8 +30,29 @@ static int input_filter_numbers_only(ImGuiInputTextCallbackData* data)
 	auto c = data->EventChar;
 	if (c >= '0' && c <= '9')
 		return 0;
-
 	return 1;
+}
+
+bool emso_verify(string emso)
+{
+	return true;
+
+	if (emso.empty()) // 13 mestno
+		return false;
+
+	for (auto& c : emso)
+		if (!(c >= '0' && c <= '9')) // samo številke
+			return false;
+
+	static int factor_map[] = { 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2 };
+	short control_digit = 0, sum = 0;
+	for (int i = 0; i < 12; ++i)
+		sum += (int)(emso[i] - '0') * factor_map[i];
+
+	control_digit = sum % 11 == 0 ? 0 : 11 - (sum % 11);// Seštevek se deli z enajst (delitev se omeji na celo število).
+														// Ostanek pri delitvi se odšteje od števila 11, razlika je kontrolna številka.Kontrolna številka je enomestna, ima lahko vrednost od 0 do 9.
+														// Če je ostanek pri delitvi O je kontrolna številka 0.
+	return control_digit == (int)(emso[12] - '0');
 }
 
 void Driver::MainLoop()
@@ -38,7 +60,6 @@ void Driver::MainLoop()
 	m_screen_size = ImGui::GetIO().DisplaySize;
 
 	m_logged_in = true;
-
 
 	if (!m_logged_in)
 	{
@@ -71,9 +92,8 @@ void Driver::MainLoop()
 
 				if (m_login_error != "")
 				{
-					ImVec2 text_size = ImGui::CalcTextSize(m_login_error.c_str());
-					ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + text_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
-					ImGui::Text(m_login_error.c_str());
+					ImGui::InsertNotification({ ImGuiToastType_Error, 2000, m_login_error.c_str() });
+					m_login_error = "";
 				}
 
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
@@ -133,31 +153,36 @@ register_end:
 
 				if (m_login_error != "")
 				{
-					ImVec2 text_size = ImGui::CalcTextSize(m_login_error.c_str());
-					ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + text_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
-					ImGui::Text(m_login_error.c_str());
+					ImGui::InsertNotification({ ImGuiToastType_Error, 2000, m_login_error.c_str() });
+					m_login_error = "";
 				}
 
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
 				if (ImGui::Button("Log in", ImVec2(container_size.x / 2, 20)) || skip_login_button)
 				{
 					std::unique_ptr<sql::ResultSet> results(ExecuteQuery("SELECT * FROM uporabnik WHERE ime = '{}'", username));
-					if (results->rowsCount() > 0)
+					if (results)
 					{
-						while (results->next())
+						if (results->rowsCount() > 0)
 						{
-							string encrypted_password = encryption.Encrypt(password, username);
-							if (results->getString("geslo") == encrypted_password)
+							while (results->next())
 							{
-								m_logged_in = true;
-								m_login_error = "";
+								string encrypted_password = encryption.Encrypt(password, username);
+								if (results->getString("geslo") == encrypted_password)
+								{
+									m_logged_in = true;
+									m_login_error = "";
+								}
+								else
+									m_login_error = "Napačno geslo za uporabnika " + string(username);
 							}
-							else
-								m_login_error = "Napačno geslo za uporabnika " + string(username);
+
 						}
+						else
+							m_login_error = "Napačno uporabniško ime";
 					}
 					else
-						m_login_error = "Napačno uporabniško ime";
+						m_login_error = "Napaka v bazi podatkov, poskusite znova";
 				}
 				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
 				if (ImGui::TextSelectable("Nov uporabnik"))
@@ -174,9 +199,11 @@ register_end:
 		static Pacient selected_pacient;
 		static Doktor selected_doktor;
 		static Oddelek selected_doktor_oddelek;
+		static Zapisnik selected_zapisnik;
+		static Oddelek selected_oddelek;
+		static Zdravilo selected_zdravilo;
 		static int selected_row_pacient = -1;
 		static int selected_row_doktor = -1;
-		static Zapisnik selected_zapisnik;
 
 
 		if (ImGui::BeginTabItem("Pacienti"))
@@ -322,18 +349,30 @@ register_end:
 			ImGui::Text("Naslov:");
 			ImGui::InputText("##address_pacient", &selected_pacient.m_naslov, ImVec2(m_screen_size.x * 0.25f, 0), 96);
 			ImGui::Text("Tel. Številka:");
-			ImGui::InputText("##number_pacient", &selected_pacient.m_tel_st, ImVec2(m_screen_size.x * 0.25f, 0), 32);
+			ImGui::InputText("##number_pacient", (char*)selected_pacient.m_tel_st.c_str(), ImVec2(m_screen_size.x * 0.25f, 0), 9, ImGuiInputTextFlags_CallbackCharFilter, input_filter_numbers_only);
 			ImGui::Text("EMŠO:");
-			ImGui::InputText("##emso_pacient", &selected_pacient.m_emso, ImVec2(m_screen_size.x * 0.25f, 0), 13, ImGuiInputTextFlags_CallbackCharFilter, input_filter_numbers_only);
+			ImGui::InputText("##emso_pacient", (char*)selected_pacient.m_emso.c_str(), ImVec2(m_screen_size.x * 0.25f, 0), 13, ImGuiInputTextFlags_CallbackCharFilter, input_filter_numbers_only);
 			if (selected_pacient.m_id == -1)
 			{
 				if (ImGui::Button("Dodaj##pacient"))
-					ExecuteUpdate("INSERT INTO pacient (ime, priimek, naslov, tel_st) VALUES ('{}', '{}', '{}', '{}');", selected_pacient.m_ime, selected_pacient.m_priimek, selected_pacient.m_naslov, selected_pacient.m_tel_st);
+					if (emso_verify(selected_pacient.m_emso))
+						if (ExecuteUpdate("INSERT INTO pacient (ime, priimek, naslov, tel_st, emso) VALUES ('{}', '{}', '{}', '{}', '{}');", selected_pacient.m_ime, selected_pacient.m_priimek, selected_pacient.m_naslov, selected_pacient.m_tel_st, selected_pacient.m_emso) > 0)
+							ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Pacient dodan!" });
+						else
+							ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Pacient ni dodan - napaka v bazi" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "EMŠO ni veljaven!" });
 			}
 			else
 			{
 				if (ImGui::Button("Posodobi##pacient"))
-					ExecuteUpdate("UPDATE pacient SET ime = '{}', priimek = '{}', naslov = '{}', tel_st = '{}' WHERE id = {};", selected_pacient.m_ime, selected_pacient.m_priimek, selected_pacient.m_naslov, selected_pacient.m_tel_st, selected_pacient.m_id);
+					if (emso_verify(selected_pacient.m_emso))
+						if (ExecuteUpdate("UPDATE pacient SET ime = '{}', priimek = '{}', naslov = '{}', tel_st = '{}', emso = '{}' WHERE id = {};", selected_pacient.m_ime, selected_pacient.m_priimek, selected_pacient.m_naslov, selected_pacient.m_tel_st, selected_pacient.m_emso, selected_pacient.m_id) > 0)
+							ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Pacient posodobljen!" });
+						else
+							ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Pacient ni posodobljen - napaka v bazi" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "EMŠO ni veljaven!" });
 			}
 
 			ImGui::SameLine();
@@ -385,10 +424,13 @@ register_end:
 				if (ImGui::Button("Dodaj##termin"))
 				{
 					auto date_formated = date_to_sql(date);
-					ExecuteUpdate("INSERT INTO termin (cas_datum, doktor_id, pacient_id) VALUES ('{}', {}, {});", date_formated, selected_doktor_termin.m_id, selected_pacient.m_id);
+					if (ExecuteUpdate("INSERT INTO termin (cas_datum, doktor_id, pacient_id) VALUES ('{}', {}, {});", date_formated, selected_doktor_termin.m_id, selected_pacient.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Termin dodan!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Termin ni dodan - napaka v bazi" });
 				}
 
-
+				ImGui::Spacing(10);
 				ImGui::SeparatorText("Termini");
 				if (ImGui::BeginTable("##termini", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
 				{
@@ -511,14 +553,20 @@ register_end:
 					if (ImGui::Button("Dodaj##zapisnik"))
 					{
 						auto datum = date_to_sql(ImGui::GetCurrentDate());
-						ExecuteUpdate("INSERT INTO zapisnik (naslov, opis, datum, pacient_id) VALUES ('{}', '{}', '{}', {});", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, datum, selected_pacient.m_id);
+						if (ExecuteUpdate("INSERT INTO zapisnik (naslov, opis, datum, pacient_id) VALUES ('{}', '{}', '{}', {});", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, datum, selected_pacient.m_id) > 0)
+							ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik dodan!" });
+						else
+							ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni dodan - napaka v bazi" });
 					}
 				}
 				else
 				{
 					ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
 					if (ImGui::Button("Posodobi##zapisnik"))
-						ExecuteUpdate("UPDATE zapisnik SET naslov = '{}', opis = '{}' WHERE id = {};", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, selected_zapisnik.m_id);
+						if (ExecuteUpdate("UPDATE zapisnik SET naslov = '{}', opis = '{}' WHERE id = {};", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, selected_zapisnik.m_id) > 0)
+							ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik posodobljen!" });
+						else
+							ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni posodobljen - napaka v bazi" });
 				}
 			}
 			ImGui::EndTabItem();
@@ -653,7 +701,7 @@ register_end:
 			
 			ImGui::Text("Tel. Številka:");
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-			ImGui::InputText("##telst_doktor", &selected_doktor.m_tel_st, ImVec2(m_screen_size.x * 0.25f, 0), 32);
+			ImGui::InputText("##telst_doktor", &selected_doktor.m_tel_st, ImVec2(m_screen_size.x * 0.25f, 0), 32, ImGuiInputTextFlags_CallbackCharFilter, input_filter_numbers_only);
 
 			ImGui::Text("Oddelek:");
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
@@ -670,13 +718,17 @@ register_end:
 			{
 				if (ImGui::Button("Dodaj##doktor"))
 					if (ExecuteUpdate("INSERT INTO doktor (ime, priimek, tel_st, oddelek_id) VALUES ('{}', '{}', '{}', {});", selected_doktor.m_ime, selected_doktor.m_priimek, selected_doktor.m_tel_st, selected_doktor.m_oddelek->m_id) > 0)
-						ImGui::Text("Nov doktor dodan!");
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Doktor dodan!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Doktor ni dodan - napaka v bazi" });
 			}
 			else
 			{
 				if (ImGui::Button("Posodobi##doktor"))
 					if (ExecuteUpdate("UPDATE doktor SET ime = '{}', priimek = '{}', tel_st = '{}', oddelek_id = '{}' WHERE id = {};", selected_doktor.m_ime, selected_doktor.m_priimek, selected_doktor.m_tel_st, selected_doktor.m_oddelek->m_id, selected_doktor.m_id) > 0)
-						ImGui::Text("Nov doktor dodan!");
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Doktor posodobljen!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Doktor ni posodobljen - napaka v bazi" });
 			}
 
 			ImGui::SameLine();
@@ -685,30 +737,118 @@ register_end:
 				selected_row_doktor = -1;
 				selected_doktor = Doktor();
 			}
+			if (selected_doktor.m_id != -1)
+			{
+				ImGui::SeparatorText("Termini");
+				if (ImGui::BeginTable("##termini", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
+				{
+					ImGui::TableSetupColumn("ID");
+					ImGui::TableSetupColumn("Čas");
+					ImGui::TableSetupColumn("Ime pacienta");
+					ImGui::TableSetupColumn("Priimek pacienta");
+					ImGui::TableHeadersRow();
 
-			ImGui::SeparatorText("Termini");
-			if (ImGui::BeginTable("##termini", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
+					for (int row = 0; row < m_termini.size(); ++row) // row
+					{
+						auto termin = m_termini[row];
+						if (termin.m_doktor->m_id != selected_doktor.m_id)
+							continue;
+
+						ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+						for (int column = 0; column < 4; column++) // column
+						{
+							ImGui::TableSetColumnIndex(column);
+							if (column == 0 || column == 1)
+								ImGui::Text(termin.get(column).c_str());
+							else if (column == 2 || column == 3)
+								ImGui::Text(termin.m_pacient->get(column - 1).c_str());
+						}
+					}
+					if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+					{
+						if (sortSpecs->SpecsDirty)
+						{
+							std::sort(
+								m_termini.begin(), m_termini.end(),
+								[&sortSpecs](const Termin& lhs, const Termin& rhs) -> bool {
+									for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
+									{
+										const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+										switch (currentSpecs->ColumnIndex)
+										{
+										case 0: {
+											if (lhs.m_id == rhs.m_id)
+												return false;
+											bool sort = lhs.m_id > rhs.m_id ? true : false;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 1: {
+											if (lhs.m_cas_datum == rhs.m_cas_datum)
+												return false;
+											bool sort = lhs.m_cas_datum.compare(rhs.m_cas_datum) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 2: {
+											if (lhs.m_pacient->m_ime == rhs.m_pacient->m_ime)
+												return false;
+											bool sort = lhs.m_pacient->m_ime.compare(rhs.m_pacient->m_ime) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+										case 3: {
+											if (lhs.m_pacient->m_priimek == rhs.m_pacient->m_priimek)
+												return false;
+											bool sort = lhs.m_pacient->m_priimek.compare(rhs.m_pacient->m_priimek) <= 0 ? false : true;
+											return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+										}; break;
+
+										default: {
+											return false;
+										}; break;
+										}
+									}
+									return false;
+								});
+						}
+
+						sortSpecs->SpecsDirty = false;
+					}
+					ImGui::EndTable();
+				}
+			}
+
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Oddelki"))
+		{
+			if (ImGui::BeginTable("##oddelki", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
 			{
 				ImGui::TableSetupColumn("ID");
-				ImGui::TableSetupColumn("Čas");
-				ImGui::TableSetupColumn("Ime pacienta");
-				ImGui::TableSetupColumn("Priimek pacienta");
+				ImGui::TableSetupColumn("Ime");
+				ImGui::TableSetupColumn("Bolnica");
 				ImGui::TableHeadersRow();
 
-				for (int row = 0; row < m_termini.size(); ++row) // row
+				for (int row = 0; row < m_oddelki.size(); ++row) // row
 				{
-					auto termin = m_termini[row];
-					if (termin.m_doktor->m_id != selected_doktor.m_id)
-						continue;
-
+					auto oddelek = m_oddelki[row];
 					ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
-					for (int column = 0; column < 4; column++) // column
+					for (int column = 0; column < 3; column++) // column
 					{
 						ImGui::TableSetColumnIndex(column);
 						if (column == 0 || column == 1)
-							ImGui::Text(termin.get(column).c_str());
-						else if (column == 2 || column == 3)
-							ImGui::Text(termin.m_pacient->get(column - 1).c_str());
+						{
+							if (ImGui::Selectable(oddelek.get(column).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+								selected_oddelek = oddelek;
+						}
+						else if (column == 2)
+						{
+							if (oddelek.m_bolnica)
+							{
+								if (ImGui::Selectable(oddelek.m_bolnica->m_ime.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+									selected_oddelek = oddelek;
+							}
+							else
+								ImGui::Text("/");
+						}
 					}
 				}
 				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
@@ -716,8 +856,8 @@ register_end:
 					if (sortSpecs->SpecsDirty)
 					{
 						std::sort(
-							m_termini.begin(), m_termini.end(),
-							[&sortSpecs](const Termin& lhs, const Termin& rhs) -> bool {
+							m_oddelki.begin(), m_oddelki.end(),
+							[&sortSpecs](const Oddelek& lhs, const Oddelek& rhs) -> bool {
 								for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
 								{
 									const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
@@ -730,21 +870,15 @@ register_end:
 										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
 									}; break;
 									case 1: {
-										if (lhs.m_cas_datum == rhs.m_cas_datum)
+										if (lhs.m_ime == rhs.m_ime)
 											return false;
-										bool sort = lhs.m_cas_datum.compare(rhs.m_cas_datum) <= 0 ? false : true;
+										bool sort = lhs.m_ime.compare(rhs.m_ime) <= 0 ? false : true;
 										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
 									}; break;
 									case 2: {
-										if (lhs.m_pacient->m_ime == rhs.m_pacient->m_ime)
+										if (lhs.m_bolnica->m_ime == rhs.m_bolnica->m_ime)
 											return false;
-										bool sort = lhs.m_pacient->m_ime.compare(rhs.m_pacient->m_ime) <= 0 ? false : true;
-										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
-									}; break;
-									case 3: {
-										if (lhs.m_pacient->m_priimek == rhs.m_pacient->m_priimek)
-											return false;
-										bool sort = lhs.m_pacient->m_priimek.compare(rhs.m_pacient->m_priimek) <= 0 ? false : true;
+										bool sort = lhs.m_bolnica->m_ime.compare(rhs.m_bolnica->m_ime) <= 0 ? false : true;
 										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
 									}; break;
 
@@ -761,12 +895,168 @@ register_end:
 				}
 				ImGui::EndTable();
 			}
+			ImGui::SeparatorText("Odelek:");
+
+			ImGui::Text("Ime:");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			ImGui::InputText("##name_oddelek", &selected_oddelek.m_ime, ImVec2(m_screen_size.x * 0.25f, 0), 32);
+
+			ImGui::Text("Bolnica:");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			if (ImGui::BeginCombo("##oddelek_bolnica", selected_oddelek.m_bolnica ? selected_oddelek.m_bolnica->m_ime.c_str() : ""))
+			{
+				for (auto& b : m_bolnice)
+					if (ImGui::Selectable(b.m_ime.c_str()))
+						selected_oddelek.m_bolnica = &b;
+
+				ImGui::EndCombo();
+			}
+
+			if (selected_oddelek.m_id == -1)
+			{
+				if (ImGui::Button("Dodaj##oddelek"))
+				{
+					if (ExecuteUpdate("INSERT INTO oddelek (ime, bolnica_id) VALUES ('{}', {});", selected_oddelek.m_ime, selected_oddelek.m_bolnica->m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Oddelek dodan!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Oddelek ni dodan - napaka v bazi" });
+				}
+			}
+			else
+			{
+				if (ImGui::Button("Posodobi##oddelek"))
+				{
+					if (ExecuteUpdate("UPDATE oddelek SET ime = '{}', bolnica_id = {} WHERE id = {};", selected_oddelek.m_ime, selected_oddelek.m_bolnica->m_id, selected_oddelek.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Oddelek posodobljen!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Oddelek ni posodobljen - napaka v bazi" });
+				}
+			}
+
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Zdravila"))
+		{
+			if (ImGui::BeginTable("##zdravila", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
+			{
+				ImGui::TableSetupColumn("ID");
+				ImGui::TableSetupColumn("Ime");
+				ImGui::TableSetupColumn("Količina");
+				ImGui::TableSetupColumn("Opis");
+				ImGui::TableHeadersRow();
+
+				for (int row = 0; row < m_zdravila.size(); ++row) // row
+				{
+					auto zdravilo = m_zdravila[row];
+					ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+					for (int column = 0; column < 4; column++) // column
+					{
+						ImGui::TableSetColumnIndex(column);
+						
+						auto size = ImGui::CalcTextSize(zdravilo.get(column).c_str(),NULL, false, ImGui::GetContentRegionAvail().x);
+						//if (ImGui::Selectable(zdravilo.get(column).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+						//	selected_zdravilo = zdravilo;
+
+						ImGui::TextWrapped(zdravilo.get(column).c_str());
+					}
+				}
+				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+				{
+					if (sortSpecs->SpecsDirty)
+					{
+						std::sort(
+							m_zdravila.begin(), m_zdravila.end(),
+							[&sortSpecs](const Zdravilo& lhs, const Zdravilo& rhs) -> bool {
+								for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
+								{
+									const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+									switch (currentSpecs->ColumnIndex)
+									{
+									case 0: {
+										if (lhs.m_id == rhs.m_id)
+											return false;
+										bool sort = lhs.m_id > rhs.m_id ? true : false;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									case 1: {
+										if (lhs.m_ime == rhs.m_ime)
+											return false;
+										bool sort = lhs.m_ime.compare(rhs.m_ime) <= 0 ? false : true;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									case 2: {
+										if (lhs.m_kolicina == rhs.m_kolicina)
+											return false;
+										bool sort = lhs.m_kolicina > rhs.m_kolicina ? true : false;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									case 3: {
+										if (lhs.m_opis == rhs.m_opis)
+											return false;
+										bool sort = lhs.m_opis.compare(rhs.m_opis) <= 0 ? false : true;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									default: {
+										return false;
+									}; break;
+									}
+								}
+								return false;
+							});
+					}
+
+					sortSpecs->SpecsDirty = false;
+				}
+				ImGui::EndTable();
+			}
+			/*
+			ImGui::SeparatorText("Odelek:");
+
+			ImGui::Text("Ime:");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			ImGui::InputText("##name_oddelek", &selected_oddelek.m_ime, ImVec2(m_screen_size.x * 0.25f, 0), 32);
+
+			ImGui::Text("Bolnica:");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			if (ImGui::BeginCombo("##oddelek_bolnica", selected_oddelek.m_bolnica ? selected_oddelek.m_bolnica->m_ime.c_str() : ""))
+			{
+				for (auto& b : m_bolnice)
+					if (ImGui::Selectable(b.m_ime.c_str()))
+						selected_oddelek.m_bolnica = &b;
+
+				ImGui::EndCombo();
+			}
+
+			if (selected_oddelek.m_id == -1)
+			{
+				if (ImGui::Button("Dodaj##oddelek"))
+				{
+					if (ExecuteUpdate("INSERT INTO oddelek (ime, bolnica_id) VALUES ('{}', {});", selected_oddelek.m_ime, selected_oddelek.m_bolnica->m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Oddelek dodan!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Oddelek ni dodan - napaka v bazi" });
+				}
+			}
+			else
+			{
+				if (ImGui::Button("Posodobi##oddelek"))
+				{
+					if (ExecuteUpdate("UPDATE oddelek SET ime = '{}', bolnica_id = {} WHERE id = {};", selected_oddelek.m_ime, selected_oddelek.m_bolnica->m_id, selected_oddelek.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Oddelek posodobljen!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Oddelek ni posodobljen - napaka v bazi" });
+				}
+			}
+			*/
 
 			ImGui::EndTabItem();
 		}
 
 
 		ImGui::EndTabBar();
+
+		selected_row_pacient = -1;
+		selected_row_doktor = -1;
 	}
 }
 
@@ -801,7 +1091,11 @@ int Driver::ExecuteUpdate(const string& query)
 	try {
 		sql::Statement* stmt;
 		stmt = g_sqlConnection->createStatement();
-		return stmt->executeUpdate(query.c_str());
+		auto res = stmt->executeUpdate(query.c_str());
+
+		GetDatabaseVariables();
+
+		return res;
 	}
 	catch (sql::SQLException& e)
 	{
@@ -835,6 +1129,9 @@ bool Driver::GetDatabaseVariables()
 	m_termini.clear();
 	m_doktroji.clear();
 	m_zapisniki.clear();
+	m_oddelki.clear();
+	m_bolnice.clear();
+	m_zdravila.clear();
 
 	std::unique_ptr<sql::ResultSet> results_pacient(driver.ExecuteQuery("SELECT * FROM pacient"));
 	if (results_pacient == nullptr)
@@ -905,6 +1202,11 @@ bool Driver::GetDatabaseVariables()
 				m_zapisniki.push_back(Zapisnik(results_zapisnik->getInt(1), string(results_zapisnik->getString(2)), string(results_zapisnik->getString(3)), string(results_zapisnik->getString(4)), &p));
 	}
 	
+	std::unique_ptr<sql::ResultSet> results_zdravilo(driver.ExecuteQuery("SELECT * FROM zdravilo"));
+	if (results_zdravilo == nullptr)
+		return false;
+	while (results_zdravilo->next()) // row
+		m_zdravila.push_back(Zdravilo(results_zdravilo->getInt(1), string(results_zdravilo->getString(2)), results_zdravilo->getInt(3), string(results_zdravilo->getString(4))));
 
 	return true;
 }

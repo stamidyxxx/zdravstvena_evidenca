@@ -1,5 +1,9 @@
 #include "handler.h"
 
+#include "../imgui/fonts/font_tahoma.h"
+#include "../../resource.h"
+
+
 // Helper functions
 
 bool Handler::CreateDeviceD3D(HWND hWnd)
@@ -206,8 +210,10 @@ LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int Handler::Run(function<void()> func)
 {
     // Create application window
-    //ImGui_ImplWin32_EnableDpiAwareness();
+    ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"Zdravstvena Evidenca", nullptr};
+    wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_MYICON));
+
     ::RegisterClassExW(&wc);
     HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX12 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
 
@@ -243,8 +249,11 @@ int Handler::Run(function<void()> func)
     config.OversampleV = 7;
     config.RasterizerMultiply = 1.2f;
     config.FontBuilderFlags = /*ImGuiFreeTypeBuilderFlags_Monochrome | ImGuiFreeTypeBuilderFlags_MonoHinting*/ ImGuiFreeTypeBuilderFlags_ForceAutoHint;
-
+    config.FontDataOwnedByAtlas = false;
     auto font_arial = io.Fonts->AddFontFromFileTTF(font_path, 13.f, &config, custom_ranges);
+    ImGui::MergeIconsWithLatestFont(16.f, false);
+
+
     io.Fonts->Build();
 
     // Setup Dear ImGui style
@@ -362,7 +371,7 @@ int Handler::Run(function<void()> func)
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top)));
 
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus;
         ImGui::Begin("Fullscreen Window", nullptr, window_flags);
         TCHAR title[256];
         _stprintf_s(title, _T("Zdravstvena baza - Luka Branda (%.1f FPS)"), io.Framerate);
@@ -371,6 +380,14 @@ int Handler::Run(function<void()> func)
         ImGui::PushFont(font_arial);
 
         func();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(43.f / 255.f, 43.f / 255.f, 43.f / 255.f, 100.f / 255.f));
+
+        ImGui::RenderNotifications();
+
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
 
         ImGui::PopFont();
 

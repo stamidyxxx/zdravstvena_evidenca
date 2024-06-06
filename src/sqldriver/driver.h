@@ -169,7 +169,38 @@ public:
 		case 0: return to_string(m_id);
 		case 1: return m_naslov;
 		case 2: return m_opis;
-		case 3: return m_datum;;
+		case 3: return m_datum;
+		default: return "";
+		}
+	}
+};
+
+class Zdravilo
+{
+public:
+	int m_id;
+	string m_ime;
+	int m_kolicina;
+	string m_opis;
+
+
+
+	Zdravilo(int m_id, const string& m_ime, int m_kolicina, const string& m_opis)
+		: m_id(m_id), m_ime(m_ime), m_kolicina(m_kolicina), m_opis(m_opis)
+	{
+	}
+	Zdravilo()
+		: m_id(-1), m_ime(""), m_kolicina(-1), m_opis("")
+	{
+	}
+
+	string get(size_t idx) {
+		switch (idx)
+		{
+		case 0: return to_string(m_id);
+		case 1: return m_ime;
+		case 2: return to_string(m_kolicina);
+		case 3: return m_opis;
 		default: return "";
 		}
 	}
@@ -206,6 +237,7 @@ public:
 
 	vector<Bolnica> m_bolnice;
 
+	vector<Zdravilo> m_zdravila;
 private:
 	sql::Driver* g_sqlDriver = nullptr;
 	sql::Connection* g_sqlConnection = nullptr;

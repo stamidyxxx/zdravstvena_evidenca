@@ -17,13 +17,6 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"    // warning: implicit conversion changes signedness
 #endif
 
-struct InputTextCallback_UserData
-{
-    std::string* Str;
-    ImGuiInputTextCallback  ChainCallback;
-    void* ChainCallbackUserData;
-};
-
 static int InputTextCallback(ImGuiInputTextCallbackData* data)
 {
     InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
@@ -49,6 +42,8 @@ bool ImGui::InputText(const char* label, std::string* str, const ImVec2& size, i
 {
     IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
     flags |= ImGuiInputTextFlags_CallbackResize;
+
+    char_limit += 1; // account for '\0'
 
     InputTextCallback_UserData cb_user_data;
     cb_user_data.Str = str;

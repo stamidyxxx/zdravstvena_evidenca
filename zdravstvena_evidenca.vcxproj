@@ -170,6 +170,7 @@
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\imgui\imgui_freetype.cpp" />
+    <ClCompile Include="src\imgui\imgui_notify.h" />
     <ClCompile Include="src\imgui\imgui_stdlib.cpp" />
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
@@ -179,8 +180,12 @@
     <ClCompile Include="src\sqldriver\driver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="src\encryption\encryption.h" />
     <ClInclude Include="src\handler\handler.h" />
+    <ClInclude Include="src\imgui\fonts\fa_solid_900.h" />
+    <ClInclude Include="src\imgui\fonts\font_awesome_5.h" />
+    <ClInclude Include="src\imgui\fonts\font_tahoma.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
     <ClInclude Include="src\imgui\imgui_datechooser.h" />
@@ -201,6 +206,13 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\imgui\debuggers\imgui.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="zdravstvena_evidenca.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\icon.ico" />
+    <Image Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
