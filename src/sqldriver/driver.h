@@ -1,6 +1,7 @@
 #pragma once
 #include "../includes.h"
 #include "../encryption/encryption.h"
+#include <deque>
 
 class Bolnica
 {
@@ -206,6 +207,53 @@ public:
 	}
 };
 
+class Recept
+{
+public:
+	int m_id;
+	string m_cas_datum;
+	Pacient* m_pacient;
+
+	string m_zdravila;
+	unordered_map<int, string> m_selected_zdravila;
+
+	Recept(int m_id, const string& m_cas_datum, Pacient* m_pacient)
+		: m_id(m_id), m_cas_datum(m_cas_datum), m_pacient(m_pacient), m_zdravila("")
+	{
+	}
+	Recept()
+		: m_id(-1), m_cas_datum(""), m_pacient(nullptr), m_zdravila("")
+	{
+	}
+
+	string get(size_t idx) {
+		switch (idx)
+		{
+		case 0: return to_string(m_id);
+		case 1: return m_cas_datum;
+		default: return "";
+		}
+	}
+};
+
+class Recepti_has_Zdravila
+{
+public:
+	Zdravilo* m_zdravilo;
+	Recept* m_recept;
+
+	Recepti_has_Zdravila(Zdravilo* m_zdravilo, Recept* m_recept)
+		: m_zdravilo(m_zdravilo), m_recept(m_recept)
+	{
+	}
+
+	Recepti_has_Zdravila()
+		: m_zdravilo(nullptr), m_recept(nullptr)
+	{
+	}
+};
+
+
 class Driver
 {
 public:
@@ -238,6 +286,10 @@ public:
 	vector<Bolnica> m_bolnice;
 
 	vector<Zdravilo> m_zdravila;
+
+	vector<Recept> m_recepti;
+
+	vector<Recepti_has_Zdravila> m_recepti_has_zdravila;
 private:
 	sql::Driver* g_sqlDriver = nullptr;
 	sql::Connection* g_sqlConnection = nullptr;

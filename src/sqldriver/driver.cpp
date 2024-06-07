@@ -202,6 +202,7 @@ register_end:
 		static Zapisnik selected_zapisnik;
 		static Oddelek selected_oddelek;
 		static Zdravilo selected_zdravilo;
+		static Recept selected_recept;
 		static int selected_row_pacient = -1;
 		static int selected_row_doktor = -1;
 
@@ -505,6 +506,144 @@ register_end:
 						sortSpecs->SpecsDirty = false;
 					}
 					ImGui::EndTable();
+
+					ImGui::SeparatorText("Recepti");
+					if (ImGui::BeginTable("##recepti", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
+					{
+						ImGui::TableSetupColumn("ID");
+						ImGui::TableSetupColumn("Čas");
+						ImGui::TableSetupColumn("Zdravila");
+						ImGui::TableHeadersRow();
+
+						for (int row = 0; row < m_recepti.size(); ++row) // row
+						{
+							auto recept = m_recepti[row];
+							if (recept.m_pacient->m_id != selected_pacient.m_id)
+								continue;
+
+							ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+							for (int column = 0; column < 3; column++) // column
+							{
+								ImGui::TableSetColumnIndex(column);
+								if (column == 0 || column == 1)
+									ImGui::Text(recept.get(column).c_str());
+								else
+								{
+									if (recept.m_zdravila == "")
+									{
+										for (auto& rhz : m_recepti_has_zdravila)
+											if (rhz.m_recept->m_id == recept.m_id)
+												for (auto& z : m_zdravila)
+													if (rhz.m_zdravilo->m_id == z.m_id)
+														recept.m_zdravila.append(z.m_ime + ", ");
+										recept.m_zdravila.resize(recept.m_zdravila.size() - 2);
+									}
+
+									ImGui::TextWrapped(recept.m_zdravila.c_str());
+								}
+							}
+						}
+						if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+						{
+							if (sortSpecs->SpecsDirty)
+							{
+								std::sort(
+									m_recepti.begin(), m_recepti.end(),
+									[&sortSpecs](const Recept& lhs, const Recept& rhs) -> bool {
+										for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
+										{
+											const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+											switch (currentSpecs->ColumnIndex)
+											{
+											case 0: {
+												if (lhs.m_id == rhs.m_id)
+													return false;
+												bool sort = lhs.m_id > rhs.m_id ? true : false;
+												return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+											}; break;
+											case 1: {
+												if (lhs.m_cas_datum == rhs.m_cas_datum)
+													return false;
+												bool sort = lhs.m_cas_datum.compare(rhs.m_cas_datum) <= 0 ? false : true;
+												return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+											}; break;
+											case 2: {
+												if (lhs.m_zdravila == rhs.m_zdravila)
+													return false;
+												bool sort = lhs.m_zdravila.compare(rhs.m_zdravila) <= 0 ? false : true;
+												return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+											}; break;
+
+											default: {
+												return false;
+											}; break;
+											}
+										}
+										return false;
+									});
+							}
+
+							sortSpecs->SpecsDirty = false;
+						}
+						ImGui::EndTable();
+					}
+
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+					if (ImGui::BeginCombo("##Zdravila",selected_recept.m_zdravila.c_str()))
+					{
+						if (recept.m_zdravila == "")
+						{
+							for (auto& rhz : m_recepti_has_zdravila)
+								if (rhz.m_recept->m_id == recept.m_id)
+									for (auto& z : m_zdravila)
+										if (rhz.m_zdravilo->m_id == z.m_id)
+											recept.m_zdravila.append(z.m_ime + ", ");
+							recept.m_zdravila.resize(recept.m_zdravila.size() - 2);
+						}
+
+						for (auto& z : m_zdravila)
+						{
+							bool is_selected = selected_recept.m_selected_zdravila.find(z.m_id) != selected_recept.m_selected_zdravila.end();
+							if (ImGui::Selectable(z.m_ime.c_str(), is_selected, ImGuiSelectableFlags_DontClosePopups))
+							{
+								if (is_selected)
+								{
+									selected_recept.m_selected_zdravila.erase(selected_recept.m_selected_zdravila.find(z.m_id));
+								}
+								else 
+								{
+									selected_recept.m_selected_zdravila.emplace(make_pair(z.m_id, z.m_ime));
+								}
+							}
+						}
+						ImGui::EndCombo();
+					}
+
+					/*
+					if (novi_zapisnik)
+					{
+						ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+						if (ImGui::Button("Dodaj##zapisnik"))
+						{
+							auto datum = date_to_sql(ImGui::GetCurrentDate());
+							if (ExecuteUpdate("INSERT INTO zapisnik (naslov, opis, datum, pacient_id) VALUES ('{}', '{}', '{}', {});", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, datum, selected_pacient.m_id) > 0)
+								ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik dodan!" });
+							else
+								ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni dodan - napaka v bazi" });
+						}
+					}
+					else
+					{
+						ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+						if (ImGui::Button("Posodobi##zapisnik"))
+							if (ExecuteUpdate("UPDATE zapisnik SET naslov = '{}', opis = '{}' WHERE id = {};", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, selected_zapisnik.m_id) > 0)
+								ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik posodobljen!" });
+							else
+								ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni posodobljen - napaka v bazi" });
+					}
+					*/
+
+
 				}
 			}
 
@@ -931,12 +1070,16 @@ register_end:
 					else
 						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Oddelek ni posodobljen - napaka v bazi" });
 				}
-			}
+			}			
+			ImGui::SameLine();
+			if (ImGui::Button("Počisti##oddelek"))
+				selected_oddelek = Oddelek();
 
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Zdravila"))
 		{
+			bool scroll_to_bottom = false;
 			if (ImGui::BeginTable("##zdravila", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
 			{
 				ImGui::TableSetupColumn("ID");
@@ -952,12 +1095,13 @@ register_end:
 					for (int column = 0; column < 4; column++) // column
 					{
 						ImGui::TableSetColumnIndex(column);
-						
-						auto size = ImGui::CalcTextSize(zdravilo.get(column).c_str(),NULL, false, ImGui::GetContentRegionAvail().x);
-						//if (ImGui::Selectable(zdravilo.get(column).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
-						//	selected_zdravilo = zdravilo;
 
-						ImGui::TextWrapped(zdravilo.get(column).c_str());
+						auto size = ImGui::CalcTextSize(zdravilo.get(column).c_str(), NULL, false, ImGui::GetContentRegionAvail().x);
+						if (ImGui::Selectable(zdravilo.get(column).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick, ImVec2(0, 0), true))
+						{
+							selected_zdravilo = zdravilo;
+							scroll_to_bottom = true;
+						}
 					}
 				}
 				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
@@ -1009,45 +1153,51 @@ register_end:
 				}
 				ImGui::EndTable();
 			}
-			/*
-			ImGui::SeparatorText("Odelek:");
+			
+			ImGui::SeparatorText("Zdravilo:");
 
 			ImGui::Text("Ime:");
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-			ImGui::InputText("##name_oddelek", &selected_oddelek.m_ime, ImVec2(m_screen_size.x * 0.25f, 0), 32);
+			ImGui::InputText("##ime_zdravilo", &selected_zdravilo.m_ime, ImVec2(m_screen_size.x * 0.25f, 0), 32);
 
-			ImGui::Text("Bolnica:");
+			ImGui::Text("Količina:");
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-			if (ImGui::BeginCombo("##oddelek_bolnica", selected_oddelek.m_bolnica ? selected_oddelek.m_bolnica->m_ime.c_str() : ""))
-			{
-				for (auto& b : m_bolnice)
-					if (ImGui::Selectable(b.m_ime.c_str()))
-						selected_oddelek.m_bolnica = &b;
+			ImGui::SliderInt("##kolicina_zdravilo", &selected_zdravilo.m_kolicina, 1, 1000, "%dg");
 
-				ImGui::EndCombo();
-			}
+			ImGui::Text("Opis:");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			ImGui::InputTextMultiline("##opis_zdravilo", &selected_zdravilo.m_opis);
 
-			if (selected_oddelek.m_id == -1)
+			if (selected_zdravilo.m_id == -1)
 			{
-				if (ImGui::Button("Dodaj##oddelek"))
+				if (ImGui::Button("Dodaj##Zdravilo"))
 				{
-					if (ExecuteUpdate("INSERT INTO oddelek (ime, bolnica_id) VALUES ('{}', {});", selected_oddelek.m_ime, selected_oddelek.m_bolnica->m_id) > 0)
-						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Oddelek dodan!" });
+					if (ExecuteUpdate("INSERT INTO zdravilo (ime, kolicina, opis) VALUES ('{}', {}, '{}');", selected_zdravilo.m_ime, selected_zdravilo.m_kolicina, selected_zdravilo.m_opis) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zdravilo dodano!" });
 					else
-						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Oddelek ni dodan - napaka v bazi" });
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zdravilo ni dodano - napaka v bazi" });
 				}
 			}
 			else
 			{
-				if (ImGui::Button("Posodobi##oddelek"))
+				if (ImGui::Button("Posodobi##Zdravilo"))
 				{
-					if (ExecuteUpdate("UPDATE oddelek SET ime = '{}', bolnica_id = {} WHERE id = {};", selected_oddelek.m_ime, selected_oddelek.m_bolnica->m_id, selected_oddelek.m_id) > 0)
-						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Oddelek posodobljen!" });
+					if (ExecuteUpdate("UPDATE zdravilo SET ime = '{}', kolicina = {}, opis = '{}' WHERE id = {};", selected_zdravilo.m_ime, selected_zdravilo.m_kolicina, selected_zdravilo.m_opis, selected_zdravilo.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zdravilo posodobljeno!" });
 					else
-						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Oddelek ni posodobljen - napaka v bazi" });
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zdravilo ni posodobljeno - napaka v bazi" });
 				}
 			}
-			*/
+			ImGui::SameLine();
+			if (ImGui::Button("Počisti##zdravilo"))
+				selected_zdravilo = Zdravilo();
+
+			if (scroll_to_bottom)
+			{
+				scroll_to_bottom = false;
+				ImGui::SetScrollHereY();
+			}
+
 
 			ImGui::EndTabItem();
 		}
@@ -1132,6 +1282,8 @@ bool Driver::GetDatabaseVariables()
 	m_oddelki.clear();
 	m_bolnice.clear();
 	m_zdravila.clear();
+	m_recepti.clear();
+	m_recepti_has_zdravila.clear();
 
 	std::unique_ptr<sql::ResultSet> results_pacient(driver.ExecuteQuery("SELECT * FROM pacient"));
 	if (results_pacient == nullptr)
@@ -1207,6 +1359,34 @@ bool Driver::GetDatabaseVariables()
 		return false;
 	while (results_zdravilo->next()) // row
 		m_zdravila.push_back(Zdravilo(results_zdravilo->getInt(1), string(results_zdravilo->getString(2)), results_zdravilo->getInt(3), string(results_zdravilo->getString(4))));
+
+	std::unique_ptr<sql::ResultSet> results_recept(driver.ExecuteQuery("SELECT * FROM recept"));
+	if (results_recept == nullptr)
+		return false;
+	while (results_recept->next()) // row
+	{
+		auto pacient_id = results_recept->getInt(3);
+		for (auto& p : m_pacienti)
+			if (pacient_id == p.m_id)
+				m_recepti.push_back(Recept(results_recept->getInt(1), string(results_recept->getString(2)), &p));
+	}
+
+	std::unique_ptr<sql::ResultSet> results_recepti_has_zdravila(driver.ExecuteQuery("SELECT * FROM recepti_has_zdravila"));
+	if (results_recepti_has_zdravila == nullptr)
+		return false;
+	while (results_recepti_has_zdravila->next()) // row
+	{
+		auto zdravilo_id = results_recepti_has_zdravila->getInt(1);
+		auto recept_id = results_recepti_has_zdravila->getInt(2);
+		for (auto& z : m_zdravila)
+		{
+			if (zdravilo_id == z.m_id)
+				for (auto& r : m_recepti)
+					if (recept_id == r.m_id)
+						m_recepti_has_zdravila.push_back(Recepti_has_Zdravila(&z, &r));
+		}
+	}
+
 
 	return true;
 }
