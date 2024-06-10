@@ -200,11 +200,13 @@ register_end:
 		static Doktor selected_doktor;
 		static Oddelek selected_doktor_oddelek;
 		static Zapisnik selected_zapisnik;
-		static Oddelek selected_oddelek;
+		static Oddelek selected_oddelek, temp_selected_oddelek;
 		static Zdravilo selected_zdravilo;
 		static Recept selected_recept;
 		static int selected_row_pacient = -1;
 		static int selected_row_doktor = -1;
+		bool can_switch = false;
+		static bool open_popup_oddelki = false;
 
 
 		if (ImGui::BeginTabItem("Pacienti"))
@@ -335,7 +337,7 @@ register_end:
 			}
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Pacient", NULL, selected_row_pacient != -1 ? ImGuiTabItemFlags_SetSelected : 0))
+		if (ImGui::BeginTabItem("Pacient", NULL, selected_row_pacient != -1 && can_switch ? ImGuiTabItemFlags_SetSelected : 0))
 		{
 			static tm date = { };
 			if (!date.tm_year)
@@ -536,10 +538,11 @@ register_end:
 												for (auto& z : m_zdravila)
 													if (rhz.m_zdravilo->m_id == z.m_id)
 														recept.m_zdravila.append(z.m_ime + ", ");
-										recept.m_zdravila.resize(recept.m_zdravila.size() - 2);
+										if (!recept.m_zdravila.empty())
+											recept.m_zdravila.resize(recept.m_zdravila.size() - 2);
 									}
-
-									ImGui::TextWrapped(recept.m_zdravila.c_str());
+									if (recept.m_zdravila != "")
+										ImGui::TextWrapped(recept.m_zdravila.c_str());
 								}
 							}
 						}
@@ -591,47 +594,61 @@ register_end:
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
 					if (ImGui::BeginCombo("##Zdravila",selected_recept.m_zdravila.c_str()))
 					{
-						if (recept.m_zdravila == "")
-						{
-							for (auto& rhz : m_recepti_has_zdravila)
-								if (rhz.m_recept->m_id == recept.m_id)
-									for (auto& z : m_zdravila)
-										if (rhz.m_zdravilo->m_id == z.m_id)
-											recept.m_zdravila.append(z.m_ime + ", ");
-							recept.m_zdravila.resize(recept.m_zdravila.size() - 2);
-						}
-
+						selected_recept.m_zdravila.clear();
 						for (auto& z : m_zdravila)
 						{
 							bool is_selected = selected_recept.m_selected_zdravila.find(z.m_id) != selected_recept.m_selected_zdravila.end();
 							if (ImGui::Selectable(z.m_ime.c_str(), is_selected, ImGuiSelectableFlags_DontClosePopups))
 							{
 								if (is_selected)
-								{
 									selected_recept.m_selected_zdravila.erase(selected_recept.m_selected_zdravila.find(z.m_id));
-								}
 								else 
-								{
 									selected_recept.m_selected_zdravila.emplace(make_pair(z.m_id, z.m_ime));
-								}
 							}
+
+							if (is_selected)
+								selected_recept.m_zdravila.append(z.m_ime + ", ");
 						}
+						if (selected_recept.m_zdravila.size() > 3 && !selected_recept.m_zdravila.empty())
+							selected_recept.m_zdravila.resize(selected_recept.m_zdravila.size() - 2);
+
 						ImGui::EndCombo();
 					}
 
-					/*
-					if (novi_zapisnik)
-					{
-						ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-						if (ImGui::Button("Dodaj##zapisnik"))
+					
+				//	if (novi_zapisnik)
+				//	{
+						if (ImGui::Button("Dodaj##recept"))
 						{
-							auto datum = date_to_sql(ImGui::GetCurrentDate());
-							if (ExecuteUpdate("INSERT INTO zapisnik (naslov, opis, datum, pacient_id) VALUES ('{}', '{}', '{}', {});", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, datum, selected_pacient.m_id) > 0)
-								ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik dodan!" });
+							if (selected_recept.m_selected_zdravila.size() > 0)
+							{
+								bool success = false;
+								auto datum = date_to_sql(ImGui::GetCurrentDate());
+								if (ExecuteUpdate("INSERT INTO recept (cas_datum, pacient_id) VALUES ('{}', {});", datum, selected_pacient.m_id) > 0)
+								{
+									auto results = ExecuteQuery("SELECT LAST_INSERT_ID();");
+									while (results->next())
+									{
+										auto id = results->getInt(1);
+										for (auto& zdravilo : selected_recept.m_selected_zdravila)
+											if (ExecuteUpdate("INSERT INTO recepti_has_zdravila (zdravilo_id, recept_id) VALUES ({}, {});", zdravilo.first, id) <= 0)
+											{
+												success = false;
+												ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Recept ni dodan - napaka v bazi" });
+											}
+											else
+												success = true;
+									}
+									if (success)
+										ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Recept dodan!" });
+								}
+								else
+									ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Recept ni dodan - napaka v bazi" });
+							}
 							else
-								ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni dodan - napaka v bazi" });
+								ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Izberite vsaj 1 zdravilo za recept." });
 						}
-					}
+				/*	}
 					else
 					{
 						ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
@@ -641,14 +658,9 @@ register_end:
 							else
 								ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni posodobljen - napaka v bazi" });
 					}
-					*/
-
-
+				*/
+					
 				}
-			}
-
-			if (selected_pacient.m_id != -1)
-			{
 				static bool novi_zapisnik = false;
 				ImGui::SeparatorText("Zapisnik");
 				cursor_pos_start = ImGui::GetCursorPos();
@@ -827,7 +839,7 @@ register_end:
 			ImGui::EndTabItem();
 		}
 
-		if (ImGui::BeginTabItem("Zdravnik", NULL, selected_row_doktor != -1 ? ImGuiTabItemFlags_SetSelected : 0))
+		if (ImGui::BeginTabItem("Zdravnik", NULL, selected_row_doktor != -1 && can_switch ? ImGuiTabItemFlags_SetSelected : 0))
 		{
 			auto cursor_pos_start = ImGui::GetCursorPos();
 			ImGui::Text("Ime:");
@@ -957,6 +969,43 @@ register_end:
 
 			ImGui::EndTabItem();
 		}
+
+		static bool open = false;
+		if (open_popup_oddelki)
+		{
+			ImGui::OpenPopup("Oddelek:##oddelki");
+			open_popup_oddelki = false;
+			open = true;
+		}
+
+		ImGui::SetNextWindowSize(m_screen_size / 8);
+		if (ImGui::BeginPopupModal("Oddelek:##oddelki", &open, ImGuiWindowFlags_NoResize))
+		{
+			ImGui::TextWrapped(temp_selected_oddelek.m_ime.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("test", ImGui::GetContentRegionAvail(), 0.5f);
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+			if (ImGui::Button("Izberi"))
+			{
+				can_switch = true;
+				selected_oddelek = temp_selected_oddelek;
+				ImGui::CloseCurrentPopup();
+			}
+		//	ImGui::SameLine();
+		//	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x * 0.25f);
+			ImGui::SetNextItemWidth(500);
+			if (ImGui::Button("Izbriši"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndHorizontal();
+
+			ImGui::EndPopup();
+		}
+
 		if (ImGui::BeginTabItem("Oddelki"))
 		{
 			if (ImGui::BeginTable("##oddelki", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
@@ -976,14 +1025,20 @@ register_end:
 						if (column == 0 || column == 1)
 						{
 							if (ImGui::Selectable(oddelek.get(column).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
-								selected_oddelek = oddelek;
+							{
+								temp_selected_oddelek = oddelek;
+								open_popup_oddelki = true;
+							}
 						}
 						else if (column == 2)
 						{
 							if (oddelek.m_bolnica)
 							{
 								if (ImGui::Selectable(oddelek.m_bolnica->m_ime.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
-									selected_oddelek = oddelek;
+								{
+									temp_selected_oddelek = oddelek;
+									open_popup_oddelki = true;
+								}
 							}
 							else
 								ImGui::Text("/");
@@ -1376,15 +1431,20 @@ bool Driver::GetDatabaseVariables()
 		return false;
 	while (results_recepti_has_zdravila->next()) // row
 	{
+		Zdravilo* zdravilo = nullptr;
+		Recept* recept = nullptr;
 		auto zdravilo_id = results_recepti_has_zdravila->getInt(1);
 		auto recept_id = results_recepti_has_zdravila->getInt(2);
 		for (auto& z : m_zdravila)
-		{
 			if (zdravilo_id == z.m_id)
-				for (auto& r : m_recepti)
-					if (recept_id == r.m_id)
-						m_recepti_has_zdravila.push_back(Recepti_has_Zdravila(&z, &r));
-		}
+				zdravilo = &z;
+		for (auto& r : m_recepti)
+			if (recept_id == r.m_id)
+				recept = &r;
+
+		if (!recept || !zdravilo)
+			return false;
+		m_recepti_has_zdravila.push_back(Recepti_has_Zdravila(zdravilo, recept));
 	}
 
 

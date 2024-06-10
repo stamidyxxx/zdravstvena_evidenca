@@ -218,11 +218,11 @@ public:
 	unordered_map<int, string> m_selected_zdravila;
 
 	Recept(int m_id, const string& m_cas_datum, Pacient* m_pacient)
-		: m_id(m_id), m_cas_datum(m_cas_datum), m_pacient(m_pacient), m_zdravila("")
+		: m_id(m_id), m_cas_datum(m_cas_datum), m_pacient(m_pacient), m_zdravila(""), m_selected_zdravila()
 	{
 	}
 	Recept()
-		: m_id(-1), m_cas_datum(""), m_pacient(nullptr), m_zdravila("")
+		: m_id(-1), m_cas_datum(""), m_pacient(nullptr), m_zdravila(""), m_selected_zdravila()
 	{
 	}
 

@@ -7192,10 +7192,9 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
         else if (window->DC.CurrentColumns)
             PopColumnsBackground();
     }
+
     if (wrapped)
-    {
         RenderTextWrapped(text_min, label, NULL, GetContentRegionAvail().x);
-    }
     else
         RenderTextClipped(text_min, text_max, label, NULL, &label_size, style.SelectableTextAlign, &bb);
 
