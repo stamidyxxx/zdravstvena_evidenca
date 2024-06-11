@@ -17,6 +17,7 @@
 #include "imgui/impl/imgui_impl_win32.h"
 #include "imgui/impl/imgui_impl_dx12.h"
 #include "imgui/imgui_internal.h"
+#include "imgui/imgui_stacklayout_internal.h"
 #include "imgui/imgui_stdlib.h"
 #include "imgui/imgui_datechooser.h"
 #include "imgui/imgui_notify.h"

@@ -42,6 +42,11 @@ public:
 	{
 	}
 
+	string get_ime_priimek()
+	{
+		return m_ime + " " + m_priimek;
+	}
+
 	string get(size_t idx) {
 		switch (idx)
 		{
@@ -135,6 +140,10 @@ public:
 	{
 	}
 
+	string get_text()
+	{
+		return m_cas_datum + " - " + m_doktor->get_ime_priimek() + " - " + m_pacient->get_ime_priimek();
+	}
 
 	string get(size_t idx) {
 		switch (idx)
@@ -226,6 +235,11 @@ public:
 	{
 	}
 
+	string get_text()
+	{
+		return m_cas_datum + " - " + m_pacient->get_ime_priimek();
+	}
+
 	string get(size_t idx) {
 		switch (idx)
 		{
@@ -268,6 +282,7 @@ public:
 	int ExecuteUpdate(const string& query, Args&&... args);
 
 	string date_to_sql(tm date, bool include_time = true);
+	tm sql_to_date(string date, bool include_time = true);
 
 	bool GetDatabaseVariables();
 
