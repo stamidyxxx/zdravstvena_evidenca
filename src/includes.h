@@ -21,6 +21,7 @@
 #include "imgui/imgui_stdlib.h"
 #include "imgui/imgui_datechooser.h"
 #include "imgui/imgui_notify.h"
+#include "imgui/imgui_combofilter.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER

@@ -35,14 +35,17 @@ namespace ImGui {
     //};
 
     tm GetCurrentDate() {
-        time_t now; time(&now);
-        return *localtime(&now);
+        tm out;
+        time_t now; 
+        time(&now);
+        localtime_s(&out, &now);
+        return out;
     }
     // Tip: we modify tm (its fields can even be negative!) and then we call this method to retrieve a valid date
     inline static void RecalculateDateDependentFields(tm& date) {
         date.tm_isdst = -1;   // This tries to detect day time savings too
         time_t tmp = mktime(&date);
-        date = *localtime(&tmp);
+        localtime_s(&date, &tmp);
     }
     /*inline static size_t DateToString(tm& d,char* buf,size_t bufferSize)  {
         return strftime(buf,bufferSize,
@@ -136,7 +139,7 @@ namespace ImGui {
                     dayName[0] = fallbacks[i]; dayName[1] = '\0';
                 }
                 else {
-                    dayName[0] = toupper(dayName[0]);
+                    dayName[0] = (char)toupper(dayName[0]);
                     dayName[1] = '\0';
                 }
                 //fprintf(stderr,"%s\n",dayNames[i]);
@@ -154,7 +157,7 @@ namespace ImGui {
                     static const char* fallbacks[12] = { "January","February","March","April","May","June","July","August","September","October","November","December" };
                     strcpy(monthName, fallbacks[i]);
                 }
-                else monthName[0] = toupper(monthName[0]);
+                else monthName[0] = (char)toupper(monthName[0]);
                 //fprintf(stderr,"%s\n",monthNames[i]);
                 float mw = ImGui::CalcTextSize(monthName).x;
                 if (maxMonthWidth < mw) {

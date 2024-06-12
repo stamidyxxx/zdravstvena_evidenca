@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\encryption\encryption.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\handler\handler.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_combofilter.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_datechooser.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_demo.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_draw.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_freetype.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stacklayout.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stdlib.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_tables.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_widgets.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_dx12.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_win32.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\main.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\sqldriver\driver.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\encryption\encryption.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\handler\handler.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fonts\fa_solid_900.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fonts\font_awesome_5.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fonts\font_tahoma.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fts_fuzzy_match.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imconfig.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_combofilter.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_datechooser.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_freetype.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_internal.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stacklayout_internal.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stdlib.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_dx12.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_win32.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imstb_rectpack.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imstb_textedit.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imstb_truetype.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\includes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\sqldriver\driver.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_notify.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stacklayout.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\debuggers\imgui.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{73A99DC5-02CA-373D-8832-BEA6CBAEED16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{6F8CA85E-203C-3A8C-A9EA-F489C845CE90}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

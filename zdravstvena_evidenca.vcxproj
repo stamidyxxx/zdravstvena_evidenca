@@ -1,17 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -19,203 +14,185 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{b4cf9797-519d-4afe-a8f4-5141a6b521d3}</ProjectGuid>
-    <RootNamespace>example_win32_directx12</RootNamespace>
+    <ProjectGuid>{432129DF-818A-3B70-81E7-5E8D2AF7F72D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>zdravstvena_evidenca</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\vklemencic\Desktop\zdravstvena_evidenca\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">zdravstvena_evidenca.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">zdravstvena_evidenca</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\vklemencic\Desktop\zdravstvena_evidenca\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">zdravstvena_evidenca.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">zdravstvena_evidenca</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
     <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\include;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\lib;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
     <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\include;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\lib;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgInstalledDir>..\..\vcpkg</VcpkgInstalledDir>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgInstalledDir>..\..\vcpkg</VcpkgInstalledDir>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Console</SubSystem>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Debug/zdravstvena_evidenca.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Debug/zdravstvena_evidenca.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Console</SubSystem>
-    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Release/zdravstvena_evidenca.lib</ImportLibrary>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDataBaseFile>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Release/zdravstvena_evidenca.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\encryption\encryption.cpp" />
-    <ClCompile Include="src\handler\handler.cpp" />
-    <ClCompile Include="src\imgui\imgui.cpp" />
-    <ClCompile Include="src\imgui\imgui_datechooser.cpp" />
-    <ClCompile Include="src\imgui\imgui_demo.cpp" />
-    <ClCompile Include="src\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\imgui\imgui_freetype.cpp" />
-    <ClCompile Include="src\imgui\imgui_notify.h" />
-    <ClCompile Include="src\imgui\imgui_stacklayout.cpp" />
-    <ClCompile Include="src\imgui\imgui_stacklayout.h" />
-    <ClCompile Include="src\imgui\imgui_stdlib.cpp" />
-    <ClCompile Include="src\imgui\imgui_tables.cpp" />
-    <ClCompile Include="src\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\imgui\impl\imgui_impl_dx12.cpp" />
-    <ClCompile Include="src\imgui\impl\imgui_impl_win32.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\sqldriver\driver.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="src\encryption\encryption.h" />
-    <ClInclude Include="src\handler\handler.h" />
-    <ClInclude Include="src\imgui\fonts\fa_solid_900.h" />
-    <ClInclude Include="src\imgui\fonts\font_awesome_5.h" />
-    <ClInclude Include="src\imgui\fonts\font_tahoma.h" />
-    <ClInclude Include="src\imgui\imconfig.h" />
-    <ClInclude Include="src\imgui\imgui.h" />
-    <ClInclude Include="src\imgui\imgui_datechooser.h" />
-    <ClInclude Include="src\imgui\imgui_freetype.h" />
-    <ClInclude Include="src\imgui\imgui_internal.h" />
-    <ClInclude Include="src\imgui\imgui_stacklayout_internal.h" />
-    <ClInclude Include="src\imgui\imgui_stdlib.h" />
-    <ClInclude Include="src\imgui\impl\imgui_impl_dx12.h" />
-    <ClInclude Include="src\imgui\impl\imgui_impl_win32.h" />
-    <ClInclude Include="src\imgui\imstb_rectpack.h" />
-    <ClInclude Include="src\imgui\imstb_textedit.h" />
-    <ClInclude Include="src\imgui\imstb_truetype.h" />
-    <ClInclude Include="src\includes.h" />
-    <ClInclude Include="src\sqldriver\driver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\misc\debuggers\imgui.natstepfilter" />
-    <None Include="..\README.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="src\imgui\debuggers\imgui.natvis" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="zdravstvena_evidenca.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\icon.ico" />
-    <Image Include="icon.ico" />
+    <Natvis Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\debuggers\imgui.natvis">
+    </Natvis>
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\resource.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\encryption\encryption.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\handler\handler.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fonts\fa_solid_900.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fonts\font_awesome_5.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fonts\font_tahoma.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\fts_fuzzy_match.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imconfig.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_combofilter.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_datechooser.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_freetype.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_internal.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stacklayout_internal.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stdlib.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_dx12.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_win32.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imstb_rectpack.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imstb_textedit.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imstb_truetype.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\includes.h" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\sqldriver\driver.h" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\encryption\encryption.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\handler\handler.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_combofilter.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_datechooser.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_freetype.cpp" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_notify.h" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stacklayout.cpp" />
+    <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stacklayout.h" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stdlib.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_dx12.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_win32.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\main.cpp" />
+    <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\sqldriver\driver.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

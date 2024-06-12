@@ -194,18 +194,20 @@ register_end:
 		return;
 	}
 
+	GetDatabaseVariables();
+
 	if (ImGui::BeginTabBar("##topnavbar"))
 	{
 		static Pacient selected_pacient, temp_selected_pacient;
 		static Doktor selected_doktor, temp_selected_doktor;
-		static Oddelek selected_doktor_oddelek;
 		static Zapisnik selected_zapisnik;
 		static Oddelek selected_oddelek, temp_selected_oddelek;
 		static Zdravilo selected_zdravilo, temp_selected_zdravilo;
 		static Recept selected_recept, temp_selected_recept;
 		static Termin selected_termin, temp_selected_termin;
+		static Bolnica selected_bolnica, temp_selected_bolnica;
 		bool can_switch = false;
-		static bool open_popup_oddelki = false, open_popup_zdravila = false, open_popup_pacienti = false, open_popup_doktor = false, open_popup_termin = false, open_popup_recept;
+		static bool open_popup_oddelki = false, open_popup_zdravila = false, open_popup_pacienti = false, open_popup_doktor = false, open_popup_termin = false, open_popup_recept, open_popup_bolnice = false;
 		static bool selected_tab_pacient = false, selected_tab_doktor = false, selected_tab_zdravilo = false, selected_tab_oddelek = false;
 		static bool update_date = false;
 
@@ -630,17 +632,18 @@ register_end:
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
 					ImGui::SliderInt("##minute_termin", &date.tm_min, 0, 60);
 
+					if (m_doktorji_imena.empty())
+					{
+						m_doktorji_imena.reserve(m_doktroji.size());
+						std::transform(m_doktroji.begin(), m_doktroji.end(), std::back_inserter(m_doktorji_imena),
+							[](const Doktor& o) { return o.m_ime + " " + o.m_priimek; });
+					}
+					static int selected_doktor_termin_int;
 					ImGui::Text("Doktor: ");
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-					if (ImGui::BeginCombo("##doktor_termin", selected_termin.m_doktor ? selected_termin.m_doktor->get_ime_priimek().c_str() : ""))
+					if (ImGui::ComboWithFilter("##doktor_termin", &selected_doktor_termin_int, m_doktorji_imena))
 					{
-						for (auto& doktor : m_doktroji)
-						{
-							if (ImGui::Selectable(doktor.get_ime_priimek().c_str()))
-								selected_termin.m_doktor = &doktor;
-						}
-
-						ImGui::EndCombo();
+						selected_termin.m_doktor = &m_doktroji[selected_doktor_termin_int];
 					}
 					if (selected_termin.m_id != -1)
 					{
@@ -948,7 +951,7 @@ register_end:
 			ImGui::TextWrappedCentered(temp_selected_doktor.get_ime_priimek().c_str());
 			ImGui::Spacing();
 
-			ImGui::BeginHorizontal("##zdravnik", ImGui::GetContentRegionAvail());
+			ImGui::BeginHorizontal("##zdravnik", ImGui::GetContentRegionAvail(), 1.f);
 			{
 				if (ImGui::Button("Izberi##zdravnik", ImVec2(m_screen_size.x * 0.05f, 20.f)))
 				{
@@ -987,7 +990,7 @@ register_end:
 			ImGui::InputText("##SearchBardoktorji", &search_term, ImVec2(m_screen_size.x * 0.2f, 20), 32);
 
 			m_filtered_doktroji.clear();
-			if (!search_term.empty() || search_term != "")
+			if (!search_term.empty() && search_term != "")
 			{
 				for (auto& p : m_doktroji)
 				{
@@ -1110,17 +1113,21 @@ register_end:
 			
 			ImGui::Text("Tel. Številka:");
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-			ImGui::InputText("##telst_doktor", &selected_doktor.m_tel_st, ImVec2(m_screen_size.x * 0.25f, 0), 32, ImGuiInputTextFlags_CallbackCharFilter, input_filter_numbers_only);
+			ImGui::InputText("##telst_doktor", &selected_doktor.m_tel_st, ImVec2(m_screen_size.x * 0.25f, 0), 9, ImGuiInputTextFlags_CallbackCharFilter, input_filter_numbers_only);
 
+
+			if (m_oddelki_imena.empty()) 
+			{
+				m_oddelki_imena.reserve(m_oddelki.size());
+				std::transform(m_oddelki.begin(), m_oddelki.end(), std::back_inserter(m_oddelki_imena),
+					[](const Oddelek& o) { return o.m_ime; });
+			}
+			static int selected_oddelek_int;
 			ImGui::Text("Oddelek:");
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-			if (ImGui::BeginCombo("##doktor", selected_doktor.m_oddelek ? selected_doktor.m_oddelek->m_ime.c_str() : ""))
+			if (ImGui::ComboWithFilter("##doktor", &selected_oddelek_int, m_oddelki_imena))
 			{
-				for (auto& o : m_oddelki)
-					if (ImGui::Selectable(o.m_ime.c_str()))
-						selected_doktor.m_oddelek = &o;
-
-				ImGui::EndCombo();
+				selected_doktor.m_oddelek = &m_oddelki[selected_oddelek_int];
 			}
 
 			if (selected_doktor.m_id == -1)
@@ -1134,7 +1141,7 @@ register_end:
 			else
 			{
 				if (ImGui::Button("Posodobi##doktor"))
-					if (ExecuteUpdate("UPDATE doktor SET ime = '{}', priimek = '{}', tel_st = '{}', oddelek_id = '{}' WHERE id = {};", selected_doktor.m_ime, selected_doktor.m_priimek, selected_doktor.m_tel_st, selected_doktor.m_oddelek->m_id, selected_doktor.m_id) > 0)
+					if (ExecuteUpdate("UPDATE doktor SET ime = '{}', priimek = '{}', tel_st = '{}', oddelek_id = {} WHERE id = {};", selected_doktor.m_ime, selected_doktor.m_priimek, selected_doktor.m_tel_st, selected_doktor.m_oddelek->m_id, selected_doktor.m_id) > 0)
 						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Doktor posodobljen!" });
 					else
 						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Doktor ni posodobljen - napaka v bazi" });
@@ -1242,7 +1249,7 @@ register_end:
 			ImGui::TextWrappedCentered(temp_selected_oddelek.m_ime.c_str());
 			ImGui::Spacing();
 
-			ImGui::BeginHorizontal("##oddelki", ImGui::GetContentRegionAvail());
+			ImGui::BeginHorizontal("##oddelki", ImGui::GetContentRegionAvail(), 1.f);
 			{
 				if (ImGui::Button("Izberi##oddelki", ImVec2(m_screen_size.x * 0.05f, 20.f)))
 				{
@@ -1274,6 +1281,40 @@ register_end:
 		}
 		if (ImGui::BeginTabItem("Oddelki"))
 		{
+			static string search_term = "";
+			ImGui::Spacing();
+			ImGui::Text("Iskanje:");
+			ImGui::InputText("##SearchBaroddelek", &search_term, ImVec2(m_screen_size.x * 0.2f, 20), 32);
+
+			m_filtered_oddeleki.clear();
+			if (!search_term.empty() && search_term != "")
+			{
+				for (auto& p : m_oddelki)
+				{
+					const auto it_ime = search(p.m_ime.begin(), p.m_ime.end(), search_term.begin(), search_term.end(),
+						[](char a, char b) {
+							return tolower(a) == tolower(b);
+						});
+					if (it_ime != p.m_ime.end())
+					{
+						m_filtered_oddeleki.push_back(p);
+						continue;
+					}
+
+					const auto it_opis = search(p.m_bolnica->m_ime.begin(), p.m_bolnica->m_ime.end(), search_term.begin(), search_term.end(),
+						[](char a, char b) {
+							return tolower(a) == tolower(b);
+						});
+					if (it_opis != p.m_bolnica->m_ime.end())
+					{
+						m_filtered_oddeleki.push_back(p);
+						continue;
+					}
+				}
+			}
+			else
+				m_filtered_oddeleki.insert(m_filtered_oddeleki.end(), m_oddelki.begin(), m_oddelki.end());
+
 			if (ImGui::BeginTable("##oddelki", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
 			{
 				ImGui::TableSetupColumn("ID");
@@ -1281,9 +1322,9 @@ register_end:
 				ImGui::TableSetupColumn("Bolnica");
 				ImGui::TableHeadersRow();
 
-				for (int row = 0; row < m_oddelki.size(); ++row) // row
+				for (int row = 0; row < m_filtered_oddeleki.size(); ++row) // row
 				{
-					auto oddelek = m_oddelki[row];
+					auto oddelek = m_filtered_oddeleki[row];
 					ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
 					for (int column = 0; column < 3; column++) // column
 					{
@@ -1316,7 +1357,7 @@ register_end:
 					if (sortSpecs->SpecsDirty)
 					{
 						std::sort(
-							m_oddelki.begin(), m_oddelki.end(),
+							m_filtered_oddeleki.begin(), m_filtered_oddeleki.end(),
 							[&sortSpecs](const Oddelek& lhs, const Oddelek& rhs) -> bool {
 								for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
 								{
@@ -1361,17 +1402,19 @@ register_end:
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
 			ImGui::InputText("##name_oddelek", &selected_oddelek.m_ime, ImVec2(m_screen_size.x * 0.25f, 0), 32);
 
-			ImGui::Text("Bolnica:");
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-			if (ImGui::BeginCombo("##oddelek_bolnica", selected_oddelek.m_bolnica ? selected_oddelek.m_bolnica->m_ime.c_str() : ""))
+			if (m_bolnice_imena.empty())
 			{
-				for (auto& b : m_bolnice)
-					if (ImGui::Selectable(b.m_ime.c_str()))
-						selected_oddelek.m_bolnica = &b;
-
-				ImGui::EndCombo();
+				m_bolnice_imena.reserve(m_bolnice.size());
+				std::transform(m_bolnice.begin(), m_bolnice.end(), std::back_inserter(m_bolnice_imena),
+					[](const Bolnica& o) { return o.m_ime; });
 			}
-
+			static int selected_bolnica_oddelek_int;
+			ImGui::Text("Bolnica: ");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			if (ImGui::ComboWithFilter("##oddelek_bolnica", &selected_bolnica_oddelek_int, m_bolnice_imena))
+			{
+				selected_oddelek.m_bolnica = &m_bolnice[selected_bolnica_oddelek_int];
+			}
 			if (selected_oddelek.m_id == -1)
 			{
 				if (ImGui::Button("Dodaj##oddelek"))
@@ -1416,7 +1459,7 @@ register_end:
 			ImGui::TextWrappedCentered(temp_selected_zdravilo.m_ime.c_str());
 			ImGui::Spacing();
 
-			ImGui::BeginHorizontal("##zdravila", ImGui::GetContentRegionAvail());
+			ImGui::BeginHorizontal("##zdravila", ImGui::GetContentRegionAvail(), 1.f);
 			{
 				if (ImGui::Button("Izberi##zdravila", ImVec2(m_screen_size.x * 0.05f, 20.f)))
 				{
@@ -1431,7 +1474,7 @@ register_end:
 					ImGui::CloseCurrentPopup();
 				}
 
-			//	ImGui::Spring(0.5f);
+				ImGui::Spring(0.5f);
 				if (ImGui::Button("Izbriši##zdravila", ImVec2(m_screen_size.x * 0.05f, 20.f)))
 				{
 					if (ExecuteUpdate("DELETE FROM zdravilo WHERE id = {};", temp_selected_zdravilo.m_id) > 0)
@@ -1449,6 +1492,40 @@ register_end:
 		}
 		if (ImGui::BeginTabItem("Zdravila"))
 		{
+			static string search_term = "";
+			ImGui::Spacing();
+			ImGui::Text("Iskanje:");
+			ImGui::InputText("##SearchBarzdravila", &search_term, ImVec2(m_screen_size.x * 0.2f, 20), 32);
+
+			m_filtered_zdravila.clear();
+			if (!search_term.empty() && search_term != "")
+			{
+				for (auto& p : m_zdravila)
+				{
+					const auto it_ime = search(p.m_ime.begin(), p.m_ime.end(), search_term.begin(), search_term.end(),
+						[](char a, char b) {
+							return tolower(a) == tolower(b);
+						});
+					if (it_ime != p.m_ime.end())
+					{
+						m_filtered_zdravila.push_back(p);
+						continue;
+					}
+
+					const auto it_opis = search(p.m_opis.begin(), p.m_opis.end(), search_term.begin(), search_term.end(),
+						[](char a, char b) {
+							return tolower(a) == tolower(b);
+						});
+					if (it_opis != p.m_opis.end())
+					{
+						m_filtered_zdravila.push_back(p);
+						continue;
+					}
+				}
+			}
+			else
+				m_filtered_zdravila.insert(m_filtered_zdravila.end(), m_zdravila.begin(), m_zdravila.end());
+
 			if (ImGui::BeginTable("##zdravila", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
 			{
 				ImGui::TableSetupColumn("ID");
@@ -1457,9 +1534,9 @@ register_end:
 				ImGui::TableSetupColumn("Opis");
 				ImGui::TableHeadersRow();
 
-				for (int row = 0; row < m_zdravila.size(); ++row) // row
+				for (int row = 0; row < m_filtered_zdravila.size(); ++row) // row
 				{
-					auto zdravilo = m_zdravila[row];
+					auto zdravilo = m_filtered_zdravila[row];
 					ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
 					for (int column = 0; column < 4; column++) // column
 					{
@@ -1477,7 +1554,7 @@ register_end:
 					if (sortSpecs->SpecsDirty)
 					{
 						std::sort(
-							m_zdravila.begin(), m_zdravila.end(),
+							m_filtered_zdravila.begin(), m_filtered_zdravila.end(),
 							[&sortSpecs](const Zdravilo& lhs, const Zdravilo& rhs) -> bool {
 								for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
 								{
@@ -1570,6 +1647,170 @@ register_end:
 			ImGui::EndTabItem();
 		}
 
+		// ------ BOLNICE ------ \\
+
+		static bool open_bolnice = false;
+		if (open_popup_bolnice)
+		{
+			open_popup_bolnice = false;
+			open_bolnice = true;
+			ImGui::OpenPopup("Bolnica:##bolnice");
+		}
+
+		ImGui::SetNextWindowSize(m_screen_size / 8);
+		if (ImGui::BeginPopupModal("Bolnica:##bolnice", &open_bolnice, ImGuiWindowFlags_NoResize))
+		{
+			ImGui::TextWrappedCentered(temp_selected_bolnica.m_ime.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##bolnice", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##bolnice", ImVec2(m_screen_size.x * 0.05f, 20.f)))
+				{
+					selected_tab_pacient = false;
+					selected_tab_doktor = false;
+					selected_tab_oddelek = false;
+					selected_tab_zdravilo = false;
+
+					can_switch = true;
+					selected_bolnica = temp_selected_bolnica;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##bolnice", ImVec2(m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (ExecuteUpdate("DELETE FROM bolnica WHERE id = {};", temp_selected_bolnica.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Bolnica zbrisana" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Bolinca ni zbrisana" });
+
+					selected_bolnica = temp_selected_bolnica = Bolnica();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndHorizontal();
+
+			ImGui::EndPopup();
+		}
+		if (ImGui::BeginTabItem("Bolnice"))
+		{
+			if (ImGui::BeginTable("##bolnice", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Sortable))
+			{
+				ImGui::TableSetupColumn("ID");
+				ImGui::TableSetupColumn("Ime");
+				ImGui::TableSetupColumn("Naslov");
+				ImGui::TableSetupColumn("Tel. Številka");
+				ImGui::TableSetupColumn("Poštna Številka");
+				ImGui::TableHeadersRow();
+
+				for (int row = 0; row < m_bolnice.size(); ++row) // row
+				{
+					auto bolnica = m_bolnice[row];
+					ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+					for (int column = 0; column < 5; column++) // column
+					{
+						ImGui::TableSetColumnIndex(column);
+
+						if (ImGui::Selectable(bolnica.get(column).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick, ImVec2(0, 0), true))
+						{
+							temp_selected_bolnica = bolnica;
+							open_popup_bolnice = true;
+						}
+					}
+				}
+				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs())
+				{
+					if (sortSpecs->SpecsDirty)
+					{
+						std::sort(
+							m_bolnice.begin(), m_bolnice.end(),
+							[&sortSpecs](const Bolnica& lhs, const Bolnica& rhs) -> bool {
+								for (size_t i = 0; i < sortSpecs->SpecsCount; ++i)
+								{
+									const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+									switch (currentSpecs->ColumnIndex)
+									{
+									case 0: {
+										if (lhs.m_id == rhs.m_id)
+											return false;
+										bool sort = lhs.m_id > rhs.m_id ? true : false;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									case 1: {
+										if (lhs.m_ime == rhs.m_ime)
+											return false;
+										bool sort = lhs.m_ime.compare(rhs.m_ime) <= 0 ? false : true;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									case 2: {
+										if (lhs.m_naslov == rhs.m_naslov)
+											return false;
+										bool sort = lhs.m_naslov.compare(rhs.m_naslov) <= 0 ? false : true;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									case 3: {
+										if (lhs.m_postna_st == rhs.m_postna_st)
+											return false;
+										bool sort = lhs.m_postna_st > rhs.m_postna_st <= 0 ? false : true;
+										return sortSpecs->Specs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+									}; break;
+									default: {
+										return false;
+									}; break;
+									}
+								}
+								return false;
+							});
+					}
+
+					sortSpecs->SpecsDirty = false;
+				}
+				ImGui::EndTable();
+			}
+
+			ImGui::SeparatorText("Bolnica:");
+
+			ImGui::Text("Ime:");
+			ImGui::InputText("##bolnica_ime", &selected_bolnica.m_ime, ImVec2(ImGui::GetContentRegionAvail().x * 0.25f, 0), 32);
+
+			ImGui::Text("Naslov:");
+			ImGui::InputText("##bolnica_naslov", &selected_bolnica.m_naslov, ImVec2(ImGui::GetContentRegionAvail().x * 0.25f, 0), 32);
+
+			ImGui::Text("Tel. Številka:");
+			ImGui::InputText("##bolnica_tel_st", &selected_bolnica.m_tel_st, ImVec2(ImGui::GetContentRegionAvail().x * 0.25f, 0), 9, ImGuiInputTextFlags_CallbackCharFilter, input_filter_numbers_only);
+
+			ImGui::Text("Poštna Številka:");
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			ImGui::InputInt("##bolnica_posna_st", (int*)(&selected_bolnica.m_postna_st), 0, 0);
+
+			if (selected_bolnica.m_id == -1)
+			{
+				if (ImGui::Button("Dodaj##bolince"))
+				{
+					if (ExecuteUpdate("INSERT INTO bolnica (ime, naslov, tel_st, postna_st) VALUES ('{}', '{}', '{}', {});", selected_bolnica.m_ime, selected_bolnica.m_naslov, selected_bolnica.m_tel_st, selected_bolnica.m_postna_st) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Bolnica dodana!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Bolnica ni dodana - napaka v bazi" });
+				}
+			}
+			else
+			{
+				if (ImGui::Button("Posodobi##bolince"))
+				{
+					if (ExecuteUpdate("UPDATE bolnica SET ime = '{}', naslov = '{}', tel_st = '{}', postna_st = {} WHERE id = {};", selected_bolnica.m_ime, selected_bolnica.m_naslov, selected_bolnica.m_tel_st, selected_bolnica.m_postna_st, selected_bolnica.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Bolnica posodobljena!" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Bolnica ni posodobljena - napaka v bazi" });
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Počisti##bolince"))
+				selected_bolnica = Bolnica();
+
+
+			ImGui::EndTabItem();
+		}
 
 		ImGui::EndTabBar();
 	}
@@ -1756,27 +1997,22 @@ bool Driver::GetDatabaseVariables()
 		return false;
 	while (results_recepti_has_zdravila->next()) // row
 	{
-		Zdravilo* zdravilo = nullptr;
-		Recept* recept = nullptr;
 		auto zdravilo_id = results_recepti_has_zdravila->getInt(1);
 		auto recept_id = results_recepti_has_zdravila->getInt(2);
 		auto recept_it = std::find_if(m_recepti.begin(), m_recepti.end(), [recept_id](const Recept& r) {
 			return r.m_id == recept_id;
 			});
-		if (recept_it == m_recepti.end()) {
+		if (recept_it == m_recepti.end())
 			return false;
-		}
 
 		auto zdravilo_it = std::find_if(m_zdravila.begin(), m_zdravila.end(), [zdravilo_id](const Zdravilo& z) {
 			return z.m_id == zdravilo_id;
 			});
 
-		if (zdravilo_it == m_zdravila.end()) {
+		if (zdravilo_it == m_zdravila.end())
 			return false;
-		}
 		m_recepti_has_zdravila.emplace_back(&(*zdravilo_it), &(*recept_it));
 	}
-
 
 	return true;
 }

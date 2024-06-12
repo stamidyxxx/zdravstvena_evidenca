@@ -11,9 +11,6 @@ int main(int, char**)
     if (!driver.Run())
         return EXIT_FAILURE;
 
-    if (!driver.GetDatabaseVariables())
-        return EXIT_FAILURE;
-
     // glavni loop
     return handler.Run(
         []{

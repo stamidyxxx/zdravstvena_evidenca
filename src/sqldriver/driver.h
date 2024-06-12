@@ -21,6 +21,18 @@ public:
 		: m_id(-1), m_ime(""), m_naslov(""), m_tel_st(""), m_postna_st(0)
 	{
 	}
+
+	string get(size_t idx) {
+		switch (idx)
+		{
+		case 0: return to_string(m_id);
+		case 1: return m_ime;
+		case 2: return m_naslov;
+		case 3: return m_tel_st;
+		case 4: return to_string(m_postna_st);
+		default: return "";
+		}
+	}
 };
 
 class Pacient
@@ -291,16 +303,22 @@ public:
 
 	vector<Doktor> m_doktroji;
 	vector<Doktor> m_filtered_doktroji;
+	vector<string> m_doktorji_imena;
 
 	vector<Termin> m_termini;
 
 	vector<Zapisnik> m_zapisniki;
 
 	vector<Oddelek> m_oddelki;
+	vector<Oddelek> m_filtered_oddeleki;
+	vector<string> m_oddelki_imena;
 
 	vector<Bolnica> m_bolnice;
+	vector<string> m_bolnice_imena;
 
 	vector<Zdravilo> m_zdravila;
+	vector<Zdravilo> m_filtered_zdravila;
+ 	vector<string> m_zdravila_imena;
 
 	vector<Recept> m_recepti;
 
