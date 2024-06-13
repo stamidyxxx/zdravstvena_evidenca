@@ -7,10 +7,7 @@
 
 // Posted in issue: https://github.com/ocornut/imgui/issues/1658#issuecomment-1086193100
 #include "imgui_combofilter.h"
-
-
-// bgfx packs kenney image font with its imgui and this is a magnifying glass.
-static const char* ICON_FA_SEARCH = "\ue935";
+#include "fonts/icons_fa_awsome.h"
 
 namespace ImGui
 {
@@ -126,11 +123,13 @@ namespace ImGui
             ImGui::SetKeyboardFocusHere();
         InputText("##ComboWithFilter_inputText", pattern_buffer, 256, ImGuiInputTextFlags_AutoSelectAll);
 
+        /*
         const ImVec2 label_size = CalcTextSize(ICON_FA_SEARCH, NULL, true);
         const ImVec2 search_icon_pos(
             ImGui::GetItemRectMax().x - label_size.x - style.ItemInnerSpacing.x * 2,
             window->DC.CursorPos.y + style.FramePadding.y + g.FontSize * 0.3f);
         RenderText(search_icon_pos, ICON_FA_SEARCH);
+        */
 
         ImGui::PopStyleColor(2);
 

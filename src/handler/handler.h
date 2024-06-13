@@ -21,7 +21,7 @@ public:
 	void WaitForLastSubmittedFrame();
 	FrameContext* WaitForNextFrameResources();
 //	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	int Run(function<void()> func);
+	int Run(HINSTANCE hInstance, int nCmdShow, function<void()> func);
 
 
 	// Data

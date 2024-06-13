@@ -98,7 +98,7 @@
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Debug/zdravstvena_evidenca.lib</ImportLibrary>
       <ProgramDataBaseFile>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Debug/zdravstvena_evidenca.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -144,13 +144,16 @@
       <ImportLibrary>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Release/zdravstvena_evidenca.lib</ImportLibrary>
       <OptimizeReferences>true</OptimizeReferences>
       <ProgramDataBaseFile>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Release/zdravstvena_evidenca.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\menu\menu.cpp" />
+    <ClInclude Include="src\imgui\fonts\icons_fa_awsome.h" />
+    <ClInclude Include="src\menu\menu.h" />
     <Natvis Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\debuggers\imgui.natvis">
     </Natvis>
     <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\resource.h" />
@@ -193,6 +196,12 @@
     <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\impl\imgui_impl_win32.cpp" />
     <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\main.cpp" />
     <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\sqldriver\driver.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="zdravstvena_evidenca.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

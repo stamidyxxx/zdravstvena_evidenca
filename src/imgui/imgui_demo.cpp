@@ -284,7 +284,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     static bool show_app_fullscreen = false;
     static bool show_app_long_text = false;
     static bool show_app_window_titles = false;
-/*
+
     if (show_app_main_menu_bar)       ShowExampleAppMainMenuBar();
     if (show_app_documents)           ShowExampleAppDocuments(&show_app_documents);
     if (show_app_console)             ShowExampleAppConsole(&show_app_console);
@@ -298,7 +298,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     if (show_app_fullscreen)          ShowExampleAppFullscreen(&show_app_fullscreen);
     if (show_app_long_text)           ShowExampleAppLongText(&show_app_long_text);
     if (show_app_window_titles)       ShowExampleAppWindowTitles(&show_app_window_titles);
-    */
+    
     if (show_app_layout)              ShowExampleAppLayout(&show_app_layout);
     // Dear ImGui Tools (accessible from the "Tools" menu)
     static bool show_tool_metrics = false;
@@ -582,7 +582,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     }
 
     // All demo contents
-//    ShowDemoWindowWidgets();
+/    ShowDemoWindowWidgets();
     ShowDemoWindowLayout();
 //    ShowDemoWindowPopups();
 //    ShowDemoWindowTables();

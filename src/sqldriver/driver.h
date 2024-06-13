@@ -298,6 +298,9 @@ public:
 
 	bool GetDatabaseVariables();
 
+	bool emso_verify(string emso);
+	static int input_filter_numbers_only(ImGuiInputTextCallbackData* data);
+
 	vector<Pacient> m_pacienti;
 	vector<Pacient> m_filtered_pacienti;
 
@@ -323,14 +326,27 @@ public:
 	vector<Recept> m_recepti;
 
 	vector<Recepti_has_Zdravila> m_recepti_has_zdravila;
-private:
-	sql::Driver* g_sqlDriver = nullptr;
-	sql::Connection* g_sqlConnection = nullptr;
 
 	bool m_logged_in = false;
 	bool m_register_prompt = false;
 	string m_login_error = "";
 	ImVec2 m_screen_size = ImVec2(0, 0);
+
+//private:
+	sql::Driver* g_sqlDriver = nullptr;
+	sql::Connection* g_sqlConnection = nullptr;
 };
+
+template<typename... Args>
+sql::ResultSet* Driver::ExecuteQuery(const string& query, Args&&... args)
+{
+	return ExecuteQuery(std::vformat(query, std::make_format_args(std::forward<Args>(args)...)));
+}
+
+template<typename... Args>
+int Driver::ExecuteUpdate(const string& query, Args&&... args)
+{
+	return ExecuteUpdate(std::vformat(query, std::make_format_args(std::forward<Args>(args)...)));
+}
 
 extern Driver driver;

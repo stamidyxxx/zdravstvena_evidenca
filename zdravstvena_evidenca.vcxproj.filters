@@ -49,6 +49,7 @@
     <ClCompile Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\sqldriver\driver.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\menu\menu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\resource.h">
@@ -123,9 +124,8 @@
     <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\imgui_stacklayout.h">
       <Filter>Sources</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\CMakeLists.txt" />
+    <ClInclude Include="src\menu\menu.h" />
+    <ClInclude Include="src\imgui\fonts\icons_fa_awsome.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\debuggers\imgui.natvis" />
@@ -137,5 +137,11 @@
     <Filter Include="Sources">
       <UniqueIdentifier>{6F8CA85E-203C-3A8C-A9EA-F489C845CE90}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="zdravstvena_evidenca.rc" />
   </ItemGroup>
 </Project>
