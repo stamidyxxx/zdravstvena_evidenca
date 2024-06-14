@@ -172,16 +172,19 @@ class Zapisnik
 public:
 	int m_id;
 	string m_naslov;
-	string m_opis;
+	string m_simptomi;
+	string m_znaki;
+	string m_diagnoza;
+	string m_zdravljenje;
 	string m_datum;
 	Pacient* m_pacient;
 
-	Zapisnik(int m_id, const string& m_naslov, const string& m_opis, const string& m_datum, Pacient* m_pacient)
-		: m_id(m_id), m_naslov(m_naslov), m_opis(m_opis), m_datum(m_datum), m_pacient(m_pacient)
+	Zapisnik(int m_id, const string& m_naslov, const string& m_simptomi, const string& m_znaki, const string& m_diagnoza, const string& m_zdravljenje, const string& m_datum, Pacient* m_pacient)
+		: m_id(m_id), m_naslov(m_naslov), m_simptomi(m_simptomi), m_znaki(m_znaki), m_diagnoza(m_diagnoza), m_zdravljenje(m_zdravljenje), m_datum(m_datum), m_pacient(m_pacient)
 	{
 	}
 	Zapisnik()
-		: m_id(-1), m_naslov(""), m_opis(""), m_datum(""), m_pacient(nullptr)
+		: m_id(-1), m_naslov(""), m_simptomi(""), m_znaki(""), m_diagnoza(""), m_zdravljenje(""), m_datum(""), m_pacient(nullptr)
 	{
 	}
 
@@ -190,8 +193,11 @@ public:
 		{
 		case 0: return to_string(m_id);
 		case 1: return m_naslov;
-		case 2: return m_opis;
-		case 3: return m_datum;
+		case 2: return m_simptomi;
+		case 3: return m_znaki;
+		case 5: return m_diagnoza;
+		case 6: return m_zdravljenje;
+		case 7: return m_datum;
 		default: return "";
 		}
 	}

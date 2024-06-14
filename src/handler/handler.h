@@ -22,7 +22,8 @@ public:
 	FrameContext* WaitForNextFrameResources();
 //	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	int Run(HINSTANCE hInstance, int nCmdShow, function<void()> func);
-
+	void ToggleFullscreen();
+	void SetupFonts(float font_size = 13.f);
 
 	// Data
 	FrameContext				g_frameContext[NUM_FRAMES_IN_FLIGHT];
@@ -40,6 +41,18 @@ public:
 	HANDLE						g_hSwapChainWaitableObject;
 	ID3D12Resource*				g_mainRenderTargetResource[NUM_BACK_BUFFERS] = {};
 	D3D12_CPU_DESCRIPTOR_HANDLE	g_mainRenderTargetDescriptor[NUM_BACK_BUFFERS] = {};
+
+	int m_screen_width;
+	int m_screen_height;
+	HWND m_hwnd;
+	HINSTANCE m_instance;
+	RECT m_window_rect;
+	ImFont* m_font_arial;
+
+	bool m_is_fullscreen = true;
+	bool m_vsync = false;
+	int m_colors = 0;
+	int m_font_scale = 13;
 };
 
 extern Handler handler;

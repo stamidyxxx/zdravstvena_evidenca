@@ -582,7 +582,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     }
 
     // All demo contents
-/    ShowDemoWindowWidgets();
+//    ShowDemoWindowWidgets();
     ShowDemoWindowLayout();
 //    ShowDemoWindowPopups();
 //    ShowDemoWindowTables();

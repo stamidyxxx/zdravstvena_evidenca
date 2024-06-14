@@ -15,6 +15,7 @@ public:
 	void DrawOddelki();
 	void DrawZdravila();
 	void DrawBolnice();
+	void DrawNastavitve();
 
 private:
 	Pacient m_selected_pacient, m_temp_selected_pacient;

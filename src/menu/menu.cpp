@@ -1,11 +1,9 @@
 ﻿#include "menu.h"
 #include "../sqldriver/driver.h"
+#include "../handler/handler.h"
 
 void Menu::Draw()
 {
-	ImGui::ShowDemoWindow();
-	return;
-
 	driver.m_screen_size = ImGui::GetIO().DisplaySize;
 
 	driver.m_logged_in = true;
@@ -53,6 +51,12 @@ void Menu::Draw()
 		
 		DrawBolnice();
 
+
+		// ------ NASTAVITVE ------ \\
+
+		DrawNastavitve();
+
+		/*
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Nastavitve").x);
 
 		if (ImGui::BeginTabItem("Nastavitve", NULL, ImGuiTabItemFlags_Trailing))
@@ -60,6 +64,7 @@ void Menu::Draw()
 
 			ImGui::EndTabItem();
 		}
+		*/
 
 		ImGui::EndTabBar();
 	}
@@ -199,48 +204,71 @@ void Menu::DrawLoginRegister()
 
 void Menu::DrawPacienti()
 {
-	static bool open_pacienti = false;
+	static bool open_pacienti = false, confirm_pacienti = false;
 	if (m_open_popup_pacienti)
 	{
 		m_open_popup_pacienti = false;
 		open_pacienti = true;
-		ImGui::OpenPopup("Pacient:##pacient");
+		ImGui::OpenPopup("Pacient:##pacienti");
 	}
 
 	ImGui::SetNextWindowSize(driver.m_screen_size / 8);
-	if (ImGui::BeginPopupModal("Pacient:##pacient", &open_pacienti, ImGuiWindowFlags_NoResize))
+	if (ImGui::BeginPopupModal("Pacient:##pacienti", &open_pacienti, ImGuiWindowFlags_NoResize))
 	{
-		ImGui::TextWrappedCentered(m_temp_selected_pacient.get_ime_priimek().c_str());
-		ImGui::Spacing();
-
-		ImGui::BeginHorizontal("##pacient", ImGui::GetContentRegionAvail(), 1.f);
+		if (confirm_pacienti)
 		{
-			if (ImGui::Button("Izberi##pacient", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+			auto str = "Izbrisali boste " + m_temp_selected_pacient.get_ime_priimek();
+			ImGui::TextWrappedCentered(str.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##confirmpacienti", ImGui::GetContentRegionAvail(), 1.f);
 			{
-				m_selected_tab_pacient = true;
-				m_selected_tab_doktor = false;
-				m_selected_tab_oddelek = false;
-				m_selected_tab_zdravilo = false;
+				if (ImGui::Button("Da##confirmpacienti", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (driver.ExecuteUpdate("DELETE FROM pacient WHERE id = {};", m_temp_selected_pacient.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Pacient zbrisan" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Pacient ni zbrisan" });
 
-				m_can_switch = true;
-				m_selected_pacient = m_temp_selected_pacient;
-				ImGui::CloseCurrentPopup();
-			}
+					m_selected_pacient = m_temp_selected_pacient = Pacient();
+					ImGui::CloseCurrentPopup();
+				}
 
-			ImGui::Spring(0.5f);
-			if (ImGui::Button("Izbriši##pacient", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
-			{
-				if (driver.ExecuteUpdate("DELETE FROM pacient WHERE id = {};", m_temp_selected_pacient.m_id) > 0)
-					ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Pacient zbrisan" });
-				else
-					ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Pacient ni zbrisan" });
-
-				m_selected_pacient = Pacient();
-				ImGui::CloseCurrentPopup();
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Ne##confirmpacienti", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_pacienti = false;
+				}
+				ImGui::EndHorizontal();
 			}
 		}
-		ImGui::EndHorizontal();
+		else
+		{
+			ImGui::TextWrappedCentered(m_temp_selected_pacient.get_ime_priimek().c_str());
+			ImGui::Spacing();
 
+			ImGui::BeginHorizontal("##pacienti", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##pacienti", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					m_selected_tab_pacient = true;
+					m_selected_tab_doktor = false;
+					m_selected_tab_oddelek = false;
+					m_selected_tab_zdravilo = false;
+
+					m_can_switch = true;
+					m_selected_pacient = m_temp_selected_pacient;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##pacienti", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_pacienti = true;
+				}
+			}
+			ImGui::EndHorizontal();
+		}
 		ImGui::EndPopup();
 	}
 	if (ImGui::BeginTabItem("Pacienti"))
@@ -373,7 +401,7 @@ void Menu::DrawPacienti()
 
 void Menu::DrawPacient()
 {
-	static bool open_termin = false;
+	static bool open_termin = false, confirm_termin = false;;
 	if (m_open_popup_termin)
 	{
 		m_open_popup_termin = false;
@@ -384,42 +412,65 @@ void Menu::DrawPacient()
 	ImGui::SetNextWindowSize(driver.m_screen_size / 8);
 	if (ImGui::BeginPopupModal("Termin:##termin", &open_termin, ImGuiWindowFlags_NoResize))
 	{
-		ImGui::TextWrappedCentered(m_temp_selected_termin.get_text().c_str());
-		ImGui::Spacing();
-
-		ImGui::BeginHorizontal("##termin", ImGui::GetContentRegionAvail(), 1.f);
+		if (confirm_termin)
 		{
-			if (ImGui::Button("Izberi##termin", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+			auto str = "Izbrisali boste " + m_temp_selected_termin.get_text();
+			ImGui::TextWrappedCentered(str.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##confirmtermin", ImGui::GetContentRegionAvail(), 1.f);
 			{
-				m_selected_tab_pacient = false;
-				m_selected_tab_doktor = false;
-				m_selected_tab_oddelek = false;
-				m_selected_tab_zdravilo = false;
+				if (ImGui::Button("Da##confirmtermin", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (driver.ExecuteUpdate("DELETE FROM termin WHERE id = {};", m_temp_selected_termin.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Termin zbrisan" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Termin ni zbrisan" });
 
-				m_can_switch = true;
-				m_update_date = true;
-				m_selected_termin = m_temp_selected_termin;
-				ImGui::CloseCurrentPopup();
-			}
+					m_selected_termin = m_temp_selected_termin = Termin();
+					ImGui::CloseCurrentPopup();
+				}
 
-			ImGui::Spring(0.5f);
-			if (ImGui::Button("Izbriši##termin", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
-			{
-				if (driver.ExecuteUpdate("DELETE FROM termin WHERE id = {};", m_temp_selected_termin.m_id) > 0)
-					ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Termin zbrisan" });
-				else
-					ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Termin ni zbrisan" });
-
-				m_selected_termin = m_temp_selected_termin = Termin();
-				ImGui::CloseCurrentPopup();
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Ne##confirmtermin", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_termin = false;
+				}
+				ImGui::EndHorizontal();
 			}
 		}
-		ImGui::EndHorizontal();
+		else
+		{
+			ImGui::TextWrappedCentered(m_temp_selected_termin.get_text().c_str());
+			ImGui::Spacing();
 
+			ImGui::BeginHorizontal("##termin", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##termin", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					m_selected_tab_pacient = false;
+					m_selected_tab_doktor = false;
+					m_selected_tab_oddelek = false;
+					m_selected_tab_zdravilo = false;
+
+					m_can_switch = true;
+					m_update_date = true;
+					m_selected_termin = m_temp_selected_termin;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##termin", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_termin = true;
+				}
+			}
+			ImGui::EndHorizontal();
+		}
 		ImGui::EndPopup();
 	}
 
-	static bool open_recept = false;
+	static bool open_recept = false, confirm_recept;
 	if (m_open_popup_recept)
 	{
 		m_open_popup_recept = false;
@@ -430,40 +481,64 @@ void Menu::DrawPacient()
 	ImGui::SetNextWindowSize(driver.m_screen_size / 8);
 	if (ImGui::BeginPopupModal("Recept:##recept", &open_recept, ImGuiWindowFlags_NoResize))
 	{
-		ImGui::TextWrappedCentered(m_temp_selected_recept.get_text().c_str());
-		ImGui::Spacing();
-
-		ImGui::BeginHorizontal("##recept", ImGui::GetContentRegionAvail(), 1.f);
+		if (confirm_recept)
 		{
-			if (ImGui::Button("Izberi##recept", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+			auto str = "Izbrisali boste " + m_temp_selected_recept.get_text();
+			ImGui::TextWrappedCentered(str.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##confirmrecept", ImGui::GetContentRegionAvail(), 1.f);
 			{
-				m_selected_tab_pacient = false;
-				m_selected_tab_doktor = false;
-				m_selected_tab_oddelek = false;
-				m_selected_tab_zdravilo = false;
+				if (ImGui::Button("Da##confirmrecept", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (driver.ExecuteUpdate("DELETE FROM recept WHERE id = {};", m_temp_selected_termin.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Recept zbrisan" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Recept ni zbrisan" });
 
-				m_can_switch = true;
-				m_selected_recept = m_temp_selected_recept;
-				for (auto& rhz : driver.m_recepti_has_zdravila)
-					if (rhz.m_recept->m_id == m_selected_recept.m_id)
-						m_selected_recept.m_selected_zdravila.emplace(make_pair(rhz.m_zdravilo->m_id, rhz.m_zdravilo->m_ime));
+					m_selected_recept = m_temp_selected_recept = Recept();
+					ImGui::CloseCurrentPopup();
+				}
 
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::Spring(0.5f);
-			if (ImGui::Button("Izbriši##recept", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
-			{
-				if (driver.ExecuteUpdate("DELETE FROM recept WHERE id = {};", m_temp_selected_termin.m_id) > 0)
-					ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Recept zbrisan" });
-				else
-					ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Recept ni zbrisan" });
-
-				m_selected_recept = m_temp_selected_recept = Recept();
-				ImGui::CloseCurrentPopup();
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Ne##confirmrecept", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_recept = false;
+				}
+				ImGui::EndHorizontal();
 			}
 		}
-		ImGui::EndHorizontal();
+		else
+		{
+			ImGui::TextWrappedCentered(m_temp_selected_recept.get_text().c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##recept", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##recept", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					m_selected_tab_pacient = false;
+					m_selected_tab_doktor = false;
+					m_selected_tab_oddelek = false;
+					m_selected_tab_zdravilo = false;
+
+					m_can_switch = true;
+					m_selected_recept = m_temp_selected_recept;
+					for (auto& rhz : driver.m_recepti_has_zdravila)
+						if (rhz.m_recept->m_id == m_selected_recept.m_id)
+							m_selected_recept.m_selected_zdravila.emplace(make_pair(rhz.m_zdravilo->m_id, rhz.m_zdravilo->m_ime));
+
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##recept", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_recept = true;
+				}
+			}
+			ImGui::EndHorizontal();
+		}
 
 		ImGui::EndPopup();
 	}
@@ -790,9 +865,6 @@ void Menu::DrawPacient()
 					ImGui::EndCombo();
 				}
 
-
-				//	if (novi_zapisnik)
-				//	{
 				if (m_selected_recept.m_id != -1)
 				{
 					if (ImGui::Button("Posodobi##recept"))
@@ -847,18 +919,6 @@ void Menu::DrawPacient()
 				ImGui::SameLine();
 				if (ImGui::Button("Počisti##recept"))
 					m_selected_recept = Recept();
-				/*	}
-					else
-					{
-						ImGui::SetCursorPos(ImVec2(m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-						if (ImGui::Button("Posodobi##zapisnik"))
-							if (ExecuteUpdate("UPDATE zapisnik SET naslov = '{}', opis = '{}' WHERE id = {};", selected_zapisnik.m_naslov, selected_zapisnik.m_opis, selected_zapisnik.m_id) > 0)
-								ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik posodobljen!" });
-							else
-								ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni posodobljen - napaka v bazi" });
-					}
-				*/
-
 			}
 			static bool novi_zapisnik = false;
 			ImGui::SeparatorText("Zapisnik");
@@ -881,29 +941,47 @@ void Menu::DrawPacient()
 				}
 				ImGui::EndCombo();
 			}
-			ImGui::PushTextWrapPos(driver.m_screen_size.x * 0.45f);
-			ImGui::TextWrapped(m_selected_zapisnik.m_opis.c_str());
-			ImGui::PopTextWrapPos();
+		//	ImGui::PushTextWrapPos(driver.m_screen_size.x * 0.45f);
+		//	ImGui::TextWrapped(m_selected_zapisnik.m_opis.c_str());
+		//	ImGui::PopTextWrapPos();
 
-			ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, cursor_pos_start.y));
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, cursor_pos_start.y));
 			ImGui::Text("Naslov:");
-			ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
 			ImGui::InputText("##zapisnik_naslov", &m_selected_zapisnik.m_naslov);
 
-			ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
-			ImGui::Text("Opis:");
-			ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
+			ImGui::Text("Simptomi:");
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputTextMultiline("##zapisnik_opis", &m_selected_zapisnik.m_opis);
+			ImGui::InputTextMultiline("##zapisnik_simptomi", &m_selected_zapisnik.m_simptomi, ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 45.f));
+
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
+			ImGui::Text("Znaki:");
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputTextMultiline("##zapisnik_znaki", &m_selected_zapisnik.m_znaki, ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 45.f));
+
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
+			ImGui::Text("Diagnoza:");
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputTextMultiline("##zapisnik_diagnoza", &m_selected_zapisnik.m_diagnoza, ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 45.f));
+
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
+			ImGui::Text("Zdravljenje:");
+		//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.5f, ImGui::GetCursorPosY()));
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputTextMultiline("##zapisnik_zdravljenje", &m_selected_zapisnik.m_zdravljenje, ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 45.f));
 
 			if (novi_zapisnik)
 			{
-				ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+			//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
 				if (ImGui::Button("Dodaj##zapisnik"))
 				{
 					auto datum = driver.date_to_sql(ImGui::GetCurrentDate());
-					if (driver.ExecuteUpdate("INSERT INTO zapisnik (naslov, opis, datum, pacient_id) VALUES ('{}', '{}', '{}', {});", m_selected_zapisnik.m_naslov, m_selected_zapisnik.m_opis, datum, m_selected_pacient.m_id) > 0)
+					if (driver.ExecuteUpdate("INSERT INTO zapisnik (naslov, simptomi, znaki, diagnoza, zdravljenje, datum, pacient_id) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', {});", m_selected_zapisnik.m_naslov, m_selected_zapisnik.m_simptomi, m_selected_zapisnik.m_znaki, m_selected_zapisnik.m_diagnoza, m_selected_zapisnik.m_zdravljenje, datum, m_selected_pacient.m_id) > 0)
 						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik dodan!" });
 					else
 						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni dodan - napaka v bazi" });
@@ -911,12 +989,17 @@ void Menu::DrawPacient()
 			}
 			else
 			{
-				ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
+			//	ImGui::SetCursorPos(ImVec2(driver.m_screen_size.x * 0.50f, ImGui::GetCursorPosY()));
 				if (ImGui::Button("Posodobi##zapisnik"))
-					if (driver.ExecuteUpdate("UPDATE zapisnik SET naslov = '{}', opis = '{}' WHERE id = {};", m_selected_zapisnik.m_naslov, m_selected_zapisnik.m_opis, m_selected_zapisnik.m_id) > 0)
+					if (driver.ExecuteUpdate("UPDATE zapisnik SET naslov = '{}', simptomi = '{}', znaki = '{}', diagnoza = '{}', zdravljenje = '{}' WHERE id = {};", m_selected_zapisnik.m_naslov, m_selected_zapisnik.m_simptomi, m_selected_zapisnik.m_znaki, m_selected_zapisnik.m_diagnoza, m_selected_zapisnik.m_zdravljenje, m_selected_zapisnik.m_id) > 0)
 						ImGui::InsertNotification({ ImGuiToastType_Success, 3000, "Zapisnik posodobljen!" });
 					else
 						ImGui::InsertNotification({ ImGuiToastType_Error, 3000, "Zapisnik ni posodobljen - napaka v bazi" });
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Počisti##zapisnik"))
+			{
+				m_selected_zapisnik = Zapisnik();
 			}
 		}
 		ImGui::EndTabItem();
@@ -925,7 +1008,7 @@ void Menu::DrawPacient()
 
 void Menu::DrawZdravniki()
 {
-	static bool open_doktor = false;
+	static bool open_doktor = false, confirm_zdravniki = false;
 	if (m_open_popup_doktor)
 	{
 		m_open_popup_doktor = false;
@@ -936,37 +1019,60 @@ void Menu::DrawZdravniki()
 	ImGui::SetNextWindowSize(driver.m_screen_size / 8);
 	if (ImGui::BeginPopupModal("Zdravnik:##zdravnik", &open_doktor, ImGuiWindowFlags_NoResize))
 	{
-		ImGui::TextWrappedCentered(m_temp_selected_doktor.get_ime_priimek().c_str());
-		ImGui::Spacing();
-
-		ImGui::BeginHorizontal("##zdravnik", ImGui::GetContentRegionAvail(), 1.f);
+		if (confirm_zdravniki)
 		{
-			if (ImGui::Button("Izberi##zdravnik", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+			auto str = "Izbrisali boste " + m_temp_selected_doktor.get_ime_priimek();
+			ImGui::TextWrappedCentered(str.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##confirmzdravniki", ImGui::GetContentRegionAvail(), 1.f);
 			{
-				m_selected_tab_pacient = false;
-				m_selected_tab_doktor = true;
-				m_selected_tab_oddelek = false;
-				m_selected_tab_zdravilo = false;
+				if (ImGui::Button("Da##confirmzdravniki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (driver.ExecuteUpdate("DELETE FROM doktor WHERE id = {};", m_temp_selected_doktor.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Zdravnik zbrisan" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Zdravnik ni zbrisan" });
 
-				m_can_switch = true;
-				m_selected_doktor = m_temp_selected_doktor;
-				ImGui::CloseCurrentPopup();
-			}
+					m_selected_doktor = m_temp_selected_doktor = Doktor();
+					ImGui::CloseCurrentPopup();
+				}
 
-			ImGui::Spring(0.5f);
-			if (ImGui::Button("Izbriši##zdravnik", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
-			{
-				if (driver.ExecuteUpdate("DELETE FROM doktor WHERE id = {};", m_temp_selected_doktor.m_id) > 0)
-					ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Zdravnik zbrisan" });
-				else
-					ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Zdravnik ni zbrisan" });
-
-				m_selected_doktor = m_temp_selected_doktor = Doktor();
-				ImGui::CloseCurrentPopup();
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Ne##confirmzdravniki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_zdravniki = false;
+				}
+				ImGui::EndHorizontal();
 			}
 		}
-		ImGui::EndHorizontal();
+		else
+		{
+			ImGui::TextWrappedCentered(m_temp_selected_doktor.get_ime_priimek().c_str());
+			ImGui::Spacing();
 
+			ImGui::BeginHorizontal("##zdravnik", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##zdravnik", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					m_selected_tab_pacient = false;
+					m_selected_tab_doktor = true;
+					m_selected_tab_oddelek = false;
+					m_selected_tab_zdravilo = false;
+
+					m_can_switch = true;
+					m_selected_doktor = m_temp_selected_doktor;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##zdravnik", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_zdravniki = true;
+				}
+			}
+			ImGui::EndHorizontal();
+		}
 		ImGui::EndPopup();
 	}
 
@@ -1226,7 +1332,8 @@ void Menu::DrawZdravnik()
 
 void Menu::DrawOddelki()
 {
-	static bool open_oddelki = false;
+	static int selected_bolnica_oddelek_int;
+	static bool open_oddelki = false, confirm_oddelki = false;
 	if (m_open_popup_oddelki)
 	{
 		m_open_popup_oddelki = false;
@@ -1236,36 +1343,69 @@ void Menu::DrawOddelki()
 	ImGui::SetNextWindowSize(driver.m_screen_size / 8);
 	if (ImGui::BeginPopupModal("Oddelek:##oddelki", &open_oddelki, ImGuiWindowFlags_NoResize))
 	{
-		ImGui::TextWrappedCentered(m_temp_selected_oddelek.m_ime.c_str());
-		ImGui::Spacing();
-
-		ImGui::BeginHorizontal("##oddelki", ImGui::GetContentRegionAvail(), 1.f);
+		if (confirm_oddelki)
 		{
-			if (ImGui::Button("Izberi##oddelki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+			auto str = "Izbrisali boste " + m_temp_selected_oddelek.m_ime;
+			ImGui::TextWrappedCentered(str.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##confirmoddelki", ImGui::GetContentRegionAvail(), 1.f);
 			{
-				m_selected_tab_pacient = false;
-				m_selected_tab_doktor = false;
-				m_selected_tab_oddelek = true;
-				m_selected_tab_zdravilo = false;
+				if (ImGui::Button("Da##confirmoddelki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (driver.ExecuteUpdate("DELETE FROM oddelek WHERE id = {};", m_temp_selected_oddelek.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Oddelek zbrisan" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Oddelek ni zbrisan" });
 
-				m_can_switch = true;
-				m_selected_oddelek = m_temp_selected_oddelek;
-				ImGui::CloseCurrentPopup();
-			}
+					m_selected_oddelek = m_temp_selected_oddelek = Oddelek();
+					ImGui::CloseCurrentPopup();
+				}
 
-			ImGui::Spring(0.5f);
-			if (ImGui::Button("Izbriši##oddelki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
-			{
-				if (driver.ExecuteUpdate("DELETE FROM oddelek WHERE id = {};", m_temp_selected_oddelek.m_id) > 0)
-					ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Oddelek zbrisan" });
-				else
-					ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Oddelek ni zbrisan" });
-
-				m_selected_oddelek = m_temp_selected_oddelek = Oddelek();
-				ImGui::CloseCurrentPopup();
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Ne##confirmoddelki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_oddelki = false;
+				}
+				ImGui::EndHorizontal();
 			}
 		}
-		ImGui::EndHorizontal();
+		else
+		{
+			ImGui::TextWrappedCentered(m_temp_selected_oddelek.m_ime.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##oddelki", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##oddelki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					m_selected_tab_pacient = false;
+					m_selected_tab_doktor = false;
+					m_selected_tab_oddelek = true;
+					m_selected_tab_zdravilo = false;
+
+					m_can_switch = true;
+
+					auto id = m_temp_selected_oddelek.m_bolnica->m_id;
+					auto it = std::find_if(driver.m_bolnice.begin(), driver.m_bolnice.end(), [id](const Bolnica& z) {
+						return z.m_id == id;
+						});
+
+					if (it != driver.m_bolnice.end())
+						selected_bolnica_oddelek_int = distance(driver.m_bolnice.begin(), it);
+
+					m_selected_oddelek = m_temp_selected_oddelek;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##oddelki", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_oddelki = true;
+				}
+			}
+			ImGui::EndHorizontal();
+		}
 
 		ImGui::EndPopup();
 	}
@@ -1398,7 +1538,7 @@ void Menu::DrawOddelki()
 			std::transform(driver.m_bolnice.begin(), driver.m_bolnice.end(), std::back_inserter(driver.m_bolnice_imena),
 				[](const Bolnica& o) { return o.m_ime; });
 		}
-		static int selected_bolnica_oddelek_int;
+
 		ImGui::Text("Bolnica: ");
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
 		if (ImGui::ComboWithFilter("##oddelek_bolnica", &selected_bolnica_oddelek_int, driver.m_bolnice_imena))
@@ -1435,7 +1575,7 @@ void Menu::DrawOddelki()
 
 void Menu::DrawZdravila()
 {
-	static bool open_zdravila = false;
+	static bool open_zdravila = false, confirm_zdravila = false;
 	bool scroll_to_bottom = false;
 	if (m_open_popup_zdravila)
 	{
@@ -1447,38 +1587,61 @@ void Menu::DrawZdravila()
 	ImGui::SetNextWindowSize(driver.m_screen_size / 8);
 	if (ImGui::BeginPopupModal("Zdravila:##zdravila", &open_zdravila, ImGuiWindowFlags_NoResize))
 	{
-		ImGui::TextWrappedCentered(m_temp_selected_zdravilo.m_ime.c_str());
-		ImGui::Spacing();
-
-		ImGui::BeginHorizontal("##zdravila", ImGui::GetContentRegionAvail(), 1.f);
+		if (confirm_zdravila)
 		{
-			if (ImGui::Button("Izberi##zdravila", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+			auto str = "Izbrisali boste " + m_temp_selected_zdravilo.m_ime;
+			ImGui::TextWrappedCentered(str.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##confirmzdravila", ImGui::GetContentRegionAvail(), 1.f);
 			{
-				m_selected_tab_pacient = false;
-				m_selected_tab_doktor = false;
-				m_selected_tab_oddelek = false;
-				m_selected_tab_zdravilo = true;
+				if (ImGui::Button("Da##confirmzdravila", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (driver.ExecuteUpdate("DELETE FROM zdravilo WHERE id = {};", m_temp_selected_zdravilo.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Zdravilo zbrisan" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Zdravilo ni zbrisan" });
 
-				m_can_switch = true;
-				m_selected_zdravilo = m_temp_selected_zdravilo;
-				scroll_to_bottom = true;
-				ImGui::CloseCurrentPopup();
-			}
+					m_selected_zdravilo = m_temp_selected_zdravilo = Zdravilo();
+					ImGui::CloseCurrentPopup();
+				}
 
-			ImGui::Spring(0.5f);
-			if (ImGui::Button("Izbriši##zdravila", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
-			{
-				if (driver.ExecuteUpdate("DELETE FROM zdravilo WHERE id = {};", m_temp_selected_zdravilo.m_id) > 0)
-					ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Zdravilo zbrisan" });
-				else
-					ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Zdravilo ni zbrisan" });
-
-				m_selected_zdravilo = m_temp_selected_zdravilo = Zdravilo();
-				ImGui::CloseCurrentPopup();
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Ne##confirmzdravila", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_zdravila = false;
+				}
+				ImGui::EndHorizontal();
 			}
 		}
-		ImGui::EndHorizontal();
+		else
+		{
+			ImGui::TextWrappedCentered(m_temp_selected_zdravilo.m_ime.c_str());
+			ImGui::Spacing();
 
+			ImGui::BeginHorizontal("##zdravila", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##zdravila", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					m_selected_tab_pacient = false;
+					m_selected_tab_doktor = false;
+					m_selected_tab_oddelek = false;
+					m_selected_tab_zdravilo = true;
+
+					m_can_switch = true;
+					m_selected_zdravilo = m_temp_selected_zdravilo;
+					scroll_to_bottom = true;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##zdravila", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_zdravila = true;
+				}
+			}
+			ImGui::EndHorizontal();
+		}
 		ImGui::EndPopup();
 	}
 	if (ImGui::BeginTabItem("Zdravila"))
@@ -1641,7 +1804,7 @@ void Menu::DrawZdravila()
 
 void Menu::DrawBolnice()
 {
-	static bool open_bolnice = false;
+	static bool open_bolnice = false, confirm_bolnice;
 	if (m_open_popup_bolnice)
 	{
 		m_open_popup_bolnice = false;
@@ -1652,36 +1815,60 @@ void Menu::DrawBolnice()
 	ImGui::SetNextWindowSize(driver.m_screen_size / 8);
 	if (ImGui::BeginPopupModal("Bolnišnica:##bolnice", &open_bolnice, ImGuiWindowFlags_NoResize))
 	{
-		ImGui::TextWrappedCentered(m_temp_selected_bolnica.m_ime.c_str());
-		ImGui::Spacing();
-
-		ImGui::BeginHorizontal("##bolnice", ImGui::GetContentRegionAvail(), 1.f);
+		if (confirm_bolnice)
 		{
-			if (ImGui::Button("Izberi##bolnice", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+			auto str = "Izbrisali boste " + m_temp_selected_bolnica.m_ime;
+			ImGui::TextWrappedCentered(str.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##confirmbolnice", ImGui::GetContentRegionAvail(), 1.f);
 			{
-				m_selected_tab_pacient = false;
-				m_selected_tab_doktor = false;
-				m_selected_tab_oddelek = false;
-				m_selected_tab_zdravilo = false;
+				if (ImGui::Button("Da##confirmbolnice", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					if (driver.ExecuteUpdate("DELETE FROM bolnica WHERE id = {};", m_temp_selected_bolnica.m_id) > 0)
+						ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Bolnica zbrisana" });
+					else
+						ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Bolinca ni zbrisana" });
 
-				m_can_switch = true;
-				m_selected_bolnica = m_temp_selected_bolnica;
-				ImGui::CloseCurrentPopup();
-			}
+					m_selected_bolnica = m_temp_selected_bolnica = Bolnica();
+					ImGui::CloseCurrentPopup();
+				}
 
-			ImGui::Spring(0.5f);
-			if (ImGui::Button("Izbriši##bolnice", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
-			{
-				if (driver.ExecuteUpdate("DELETE FROM bolnica WHERE id = {};", m_temp_selected_bolnica.m_id) > 0)
-					ImGui::InsertNotification({ ImGuiToastType_Success, 2000, "Bolnica zbrisana" });
-				else
-					ImGui::InsertNotification({ ImGuiToastType_Warning, 2000, "Bolinca ni zbrisana" });
-
-				m_selected_bolnica = m_temp_selected_bolnica = Bolnica();
-				ImGui::CloseCurrentPopup();
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Ne##confirmbolnice", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_bolnice = false;
+				}
+				ImGui::EndHorizontal();
 			}
 		}
-		ImGui::EndHorizontal();
+		else
+		{
+			ImGui::TextWrappedCentered(m_temp_selected_bolnica.m_ime.c_str());
+			ImGui::Spacing();
+
+			ImGui::BeginHorizontal("##bolnice", ImGui::GetContentRegionAvail(), 1.f);
+			{
+				if (ImGui::Button("Izberi##bolnice", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					m_selected_tab_pacient = false;
+					m_selected_tab_doktor = false;
+					m_selected_tab_oddelek = false;
+					m_selected_tab_zdravilo = false;
+
+					m_can_switch = true;
+					m_selected_bolnica = m_temp_selected_bolnica;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::Spring(0.5f);
+				if (ImGui::Button("Izbriši##bolnice", ImVec2(driver.m_screen_size.x * 0.05f, 20.f)))
+				{
+					confirm_bolnice = true;
+				}
+			}
+			ImGui::EndHorizontal();
+		}
 
 		ImGui::EndPopup();
 	}
@@ -1800,6 +1987,52 @@ void Menu::DrawBolnice()
 		if (ImGui::Button("Počisti##bolince"))
 			m_selected_bolnica = Bolnica();
 
+
+		ImGui::EndTabItem();
+	}
+}
+
+void Menu::DrawNastavitve()
+{
+	static bool fullscreen = true, vsync = false, anti_aliasing = true, notifications = true;
+	static float global_scale = 1.f;
+	static int notification_time = 3;
+	const char* barve[] = {"Privzeto", "Temno", "Svetlo"};
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (ImGui::BeginTabItem("Nastavitve"))
+	{
+		if (ImGui::Checkbox("Fullscreen", &fullscreen))
+			handler.ToggleFullscreen();
+
+		if (ImGui::Checkbox("VSync", &vsync))
+			handler.m_vsync = vsync;
+
+		if (ImGui::Checkbox("Anti-Aliasing", &anti_aliasing))
+		{
+			style.AntiAliasedFill = anti_aliasing;
+			style.AntiAliasedLines = anti_aliasing;
+			style.AntiAliasedLinesUseTex = anti_aliasing;
+		}
+
+		ImGui::Text("Barve:");
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+		if (ImGui::BeginCombo("##barve",barve[handler.m_colors]))
+		{
+			for (int i = 0; i < IM_ARRAYSIZE(barve); ++i)
+			{
+				if (ImGui::Selectable(barve[i]))
+					handler.m_colors = i;
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+		ImGui::SliderInt("Font Scale", &handler.m_font_scale, 10.f, 20.f, NULL, ImGuiSliderFlags_NoInput);
+
+		ImGui::Checkbox("Notifikacije", &notifications);
+		if (notifications)
+		{
+			ImGui::SliderInt("Dolžina", &notification_time, 1, 5);
+		}
 
 		ImGui::EndTabItem();
 	}

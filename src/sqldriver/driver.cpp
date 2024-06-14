@@ -202,10 +202,10 @@ bool Driver::GetDatabaseVariables()
 		return false;
 	while (results_zapisnik->next()) // row
 	{
-		auto pacient_id = results_zapisnik->getInt(5);
+		auto pacient_id = results_zapisnik->getInt(8);
 		for (auto& p : m_pacienti)
 			if (pacient_id == p.m_id)
-				m_zapisniki.push_back(Zapisnik(results_zapisnik->getInt(1), string(results_zapisnik->getString(2)), string(results_zapisnik->getString(3)), string(results_zapisnik->getString(4)), &p));
+				m_zapisniki.push_back(Zapisnik(results_zapisnik->getInt(1), string(results_zapisnik->getString(2)), string(results_zapisnik->getString(3)), string(results_zapisnik->getString(4)), string(results_zapisnik->getString(5)), string(results_zapisnik->getString(6)), string(results_zapisnik->getString(7)), &p));
 	}
 	
 	std::unique_ptr<sql::ResultSet> results_zdravilo(driver.ExecuteQuery("SELECT * FROM zdravilo"));
