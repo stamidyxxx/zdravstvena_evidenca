@@ -1,7 +1,8 @@
-#include "handler.h"
+﻿#include "handler.h"
 
 #include "../imgui/fonts/font_tahoma.h"
 #include "../../resource.h"
+#include "../imgui/imgui_notify.h"
 
 
 // Helper functions
@@ -319,17 +320,19 @@ int Handler::Run(HINSTANCE hInstance, int nCmdShow, function<void()> func)
         }
         g_SwapChainOccluded = false;
 
+        ToggleFullscreen();
+
         static auto prev_font_scale = -1.f;
-        if (prev_font_scale != m_font_scale)
+        if (prev_font_scale != settings.m_font_scale)
         {
-            SetupFonts(m_font_scale);
-            prev_font_scale = m_font_scale;
+            SetupFonts(settings.m_font_scale);
+            prev_font_scale = settings.m_font_scale;
         }
 
         static auto prev_colors = -1;
-        if (prev_colors != m_colors)
+        if (prev_colors != settings.m_colors)
         {
-            switch (m_colors)
+            switch (settings.m_colors)
             {
             case 0:
             {
@@ -402,8 +405,10 @@ int Handler::Run(HINSTANCE hInstance, int nCmdShow, function<void()> func)
                 ImGui::StyleColorsLight();
                 break;
             }
+            default:
+                break;
             }
-            prev_colors = m_colors;
+            prev_colors = settings.m_colors;
         }
 
         // Start the Dear ImGui frame
@@ -421,10 +426,16 @@ int Handler::Run(HINSTANCE hInstance, int nCmdShow, function<void()> func)
         _stprintf_s(title, _T("Zdravstvena baza - Luka Branda (%.1f FPS)"), io.Framerate);
         SetWindowText(m_hwnd, title);
 
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus;
-        if (ImGui::Begin("Zdravstvena baza - Gimnazija Ormo�", &open, window_flags))
+
+        ImGuiWindowFlags window_flags;
+        if (settings.m_is_fullscreen)
+            window_flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus;
+        else
+            window_flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoTitleBar;
+
+        ImGui::PushFont(m_font_arial);
+        if (ImGui::Begin("Zdravstvena baza - Gimnazija Ormož", &open, window_flags))
         {
-            ImGui::PushFont(m_font_arial);
 
             func();
 
@@ -441,6 +452,7 @@ int Handler::Run(HINSTANCE hInstance, int nCmdShow, function<void()> func)
             ImGui::End();
         }
         ImGui::Render();
+
 
         FrameContext* frameCtx = WaitForNextFrameResources();
         UINT backBufferIdx = g_pSwapChain->GetCurrentBackBufferIndex();
@@ -471,7 +483,7 @@ int Handler::Run(HINSTANCE hInstance, int nCmdShow, function<void()> func)
 
         // Present
         //HRESULT hr = g_pSwapChain->Present(1, 0);   // Present with vsync
-        HRESULT hr = g_pSwapChain->Present((int)(m_vsync), 0); // Present without vsync
+        HRESULT hr = g_pSwapChain->Present((int)(settings.m_vsync), 0); // Present without vsync
         g_SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
 
         UINT64 fenceValue = g_fenceLastSignaledValue + 1;
@@ -499,21 +511,23 @@ void Handler::ToggleFullscreen()
     if (!m_window_rect.top || !m_window_rect.right || !m_window_rect.left || !m_window_rect.bottom)
         GetWindowRect(m_hwnd, &m_window_rect);
 
-    if (m_is_fullscreen) 
-    {
+    static bool prev_fullscreen;
+    if (prev_fullscreen == settings.m_is_fullscreen)
+        return;
+
+    if (settings.m_is_fullscreen) {
+        SetWindowLong(m_hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+        SetWindowPos(m_hwnd, HWND_TOP, 0, 0, m_screen_width, m_screen_height,
+            SWP_FRAMECHANGED | SWP_NOZORDER | SWP_SHOWWINDOW);
+    }
+    else {
         SetWindowLong(m_hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
         SetWindowPos(m_hwnd, HWND_TOP, m_window_rect.left, m_window_rect.top,
             m_window_rect.right - m_window_rect.left, m_window_rect.bottom - m_window_rect.top,
             SWP_FRAMECHANGED | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
-    else {
-        GetWindowRect(m_hwnd, &m_window_rect);
 
-        SetWindowLong(m_hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
-        SetWindowPos(m_hwnd, HWND_TOP, 0, 0, m_screen_width, m_screen_height,
-            SWP_FRAMECHANGED | SWP_NOZORDER | SWP_SHOWWINDOW);
-    }
-    m_is_fullscreen = !m_is_fullscreen;
+    prev_fullscreen = settings.m_is_fullscreen;
 }
 
 void Handler::SetupFonts(float font_size)

@@ -13,6 +13,8 @@
 #include "imgui.h"
 
 
+#include "../settings/settings.h"
+
 #define NOTIFY_MAX_MSG_LENGTH			4096		// Max message content length
 #define NOTIFY_PADDING_X				20.f		// Bottom-left X padding
 #define NOTIFY_PADDING_Y				20.f		// Bottom-left Y padding
@@ -213,7 +215,7 @@ public:
 		IM_ASSERT(type < ImGuiToastType_COUNT);
 
 		this->type = type;
-		this->dismiss_time = dismiss_time;
+		this->dismiss_time = min(dismiss_time, settings.m_notification_time * 1000);
 		this->creation_time = get_tick_count();
 
 		memset(this->title, 0, sizeof(this->title));
@@ -234,7 +236,8 @@ namespace ImGui
 	/// </summary>
 	NOTIFY_INLINE void InsertNotification(const ImGuiToast& toast)
 	{
-		notifications.push_back(toast);
+		if (settings.m_notifications)
+			notifications.push_back(toast);
 	}
 
 	/// <summary>

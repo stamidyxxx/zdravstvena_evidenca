@@ -5,16 +5,22 @@
 #include "../resource.h"
 
 
-int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
+static int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 {
     // poveži z bazo, pridobi vse tabele, podatke
     if (!driver.Run())
         return EXIT_FAILURE;
 
+    settings.Load();
+
     // glavni loop
-    return handler.Run(hInst, cmdshow,
+    auto ret = handler.Run(hInst, cmdshow,
         []{
             driver.MainLoop();
         }
     );
+
+    settings.Save();
+
+    return ret;
 }

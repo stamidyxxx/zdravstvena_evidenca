@@ -50,6 +50,7 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\menu\menu.cpp" />
+    <ClCompile Include="src\settings\settings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\resource.h">
@@ -126,6 +127,7 @@
     </ClInclude>
     <ClInclude Include="src\menu\menu.h" />
     <ClInclude Include="src\imgui\fonts\icons_fa_awsome.h" />
+    <ClInclude Include="src\settings\settings.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\debuggers\imgui.natvis" />

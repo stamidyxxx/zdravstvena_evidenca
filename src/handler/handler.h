@@ -48,11 +48,6 @@ public:
 	HINSTANCE m_instance;
 	RECT m_window_rect;
 	ImFont* m_font_arial;
-
-	bool m_is_fullscreen = true;
-	bool m_vsync = false;
-	int m_colors = 0;
-	int m_font_scale = 13;
 };
 
 extern Handler handler;

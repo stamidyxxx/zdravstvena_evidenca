@@ -1,12 +1,13 @@
 ﻿#include "menu.h"
 #include "../sqldriver/driver.h"
 #include "../handler/handler.h"
+#include "../imgui/imgui_notify.h"
 
 void Menu::Draw()
 {
 	driver.m_screen_size = ImGui::GetIO().DisplaySize;
 
-	driver.m_logged_in = true;
+//	driver.m_logged_in = true;
 	if (!driver.m_logged_in)
 	{
 		DrawLoginRegister();
@@ -55,16 +56,6 @@ void Menu::Draw()
 		// ------ NASTAVITVE ------ \\
 
 		DrawNastavitve();
-
-		/*
-		ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Nastavitve").x);
-
-		if (ImGui::BeginTabItem("Nastavitve", NULL, ImGuiTabItemFlags_Trailing))
-		{
-
-			ImGui::EndTabItem();
-		}
-		*/
 
 		ImGui::EndTabBar();
 	}
@@ -144,21 +135,28 @@ void Menu::DrawLoginRegister()
 	else
 	{
 		ImGui::SetCursorScreenPos(startPos);
-
+		static bool save_login, saved = false;
+		static string username, password;
 		if (ImGui::BeginChild("##login_child", container_size, ImGuiChildFlags_Border, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollWithMouse))
 		{
 			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + container_size.y * 0.10f));
-			static char username[32] = "";
 			ImGui::Text("Uporabnik:");
 			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY()));
-			ImGui::InputTextEx("##Username", NULL, username, sizeof(char) * 32, ImVec2(container_size.x / 2, 20), ImGuiInputTextFlags_None);
+			ImGui::InputText("##Username", &username, ImVec2(container_size.x / 2, 20), 32, ImGuiInputTextFlags_CharsNoBlank);
 
-			static char password[32] = "";
 			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
 			ImGui::Text("Geslo:");
 			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY()));
-			bool skip_login_button = ImGui::InputTextEx("##Password", NULL, password, sizeof(char) * 32, ImVec2(container_size.x / 2, 20), ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue);
+			bool skip_login_button = ImGui::InputText("##Password", &password, ImVec2(container_size.x / 2, 20), 32, ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank);
 
+			if (!settings.m_saved_password.empty() && settings.m_saved_password != "" && !settings.m_saved_username.empty() && settings.m_saved_username != "")
+			{
+				skip_login_button = true;
+				saved = true;
+				save_login = true;
+				username = settings.m_saved_username.c_str();
+				password = settings.m_saved_password.c_str();
+			}
 
 			if (driver.m_login_error != "")
 			{
@@ -176,9 +174,19 @@ void Menu::DrawLoginRegister()
 					{
 						while (results->next())
 						{
-							string encrypted_password = encryption.Encrypt(password, username);
+							string encrypted_password = saved ? password : encryption.Encrypt(password, username);
 							if (results->getString("geslo") == encrypted_password)
 							{
+								if (save_login)
+								{
+									settings.m_saved_password = encrypted_password;
+									settings.m_saved_username = username;
+								}
+								else
+								{
+									settings.m_saved_password = "";
+									settings.m_saved_username = "";
+								}
 								driver.m_logged_in = true;
 								driver.m_login_error = "";
 							}
@@ -193,6 +201,9 @@ void Menu::DrawLoginRegister()
 				else
 					driver.m_login_error = "Napaka v bazi podatkov, poskusite znova";
 			}
+			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
+			ImGui::Checkbox("Shrani podatke", &save_login);
+
 			ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + container_size.x * 0.25f, ImGui::GetCursorPosY() + 5));
 			if (ImGui::TextSelectable("Nov uporabnik"))
 				driver.m_register_prompt = true;
@@ -1994,18 +2005,14 @@ void Menu::DrawBolnice()
 
 void Menu::DrawNastavitve()
 {
-	static bool fullscreen = true, vsync = false, anti_aliasing = true, notifications = true;
-	static float global_scale = 1.f;
-	static int notification_time = 3;
+	static bool fullscreen = true, anti_aliasing = true;
 	const char* barve[] = {"Privzeto", "Temno", "Svetlo"};
+
 	ImGuiStyle& style = ImGui::GetStyle();
 	if (ImGui::BeginTabItem("Nastavitve"))
 	{
-		if (ImGui::Checkbox("Fullscreen", &fullscreen))
-			handler.ToggleFullscreen();
-
-		if (ImGui::Checkbox("VSync", &vsync))
-			handler.m_vsync = vsync;
+		ImGui::Checkbox("Fullscreen", &settings.m_is_fullscreen);
+		ImGui::Checkbox("VSync", &settings.m_vsync);
 
 		if (ImGui::Checkbox("Anti-Aliasing", &anti_aliasing))
 		{
@@ -2016,23 +2023,30 @@ void Menu::DrawNastavitve()
 
 		ImGui::Text("Barve:");
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-		if (ImGui::BeginCombo("##barve",barve[handler.m_colors]))
+		if (ImGui::BeginCombo("##barve",barve[settings.m_colors]))
 		{
 			for (int i = 0; i < IM_ARRAYSIZE(barve); ++i)
 			{
 				if (ImGui::Selectable(barve[i]))
-					handler.m_colors = i;
+					settings.m_colors = i;
 			}
 			ImGui::EndCombo();
 		}
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-		ImGui::SliderInt("Font Scale", &handler.m_font_scale, 10.f, 20.f, NULL, ImGuiSliderFlags_NoInput);
+		ImGui::SliderInt("Velikost pisave", &settings.m_font_scale, 10, 20, NULL, ImGuiSliderFlags_NoInput);
 
-		ImGui::Checkbox("Notifikacije", &notifications);
-		if (notifications)
+		ImGui::Checkbox("Notifikacije", &settings.m_notifications);
+		if (settings.m_notifications)
 		{
-			ImGui::SliderInt("Dolžina", &notification_time, 1, 5);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
+			ImGui::SliderInt("Dolžina", &settings.m_notification_time, 1, 5, "%ds");
 		}
+		
+		if (ImGui::Button("Save"))
+			settings.Save();
+		if (ImGui::Button("Load"))
+			settings.Load();
+
 
 		ImGui::EndTabItem();
 	}

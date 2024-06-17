@@ -1,12 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
   </PropertyGroup>
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -27,7 +35,18 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
@@ -45,22 +64,37 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\vklemencic\Desktop\zdravstvena_evidenca\Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">zdravstvena_evidenca.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">zdravstvena_evidenca</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">zdravstvena_evidenca</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\vklemencic\Desktop\zdravstvena_evidenca\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">zdravstvena_evidenca.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">zdravstvena_evidenca</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">zdravstvena_evidenca</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\include;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\lib;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:\Users\vklemencic\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:\Users\vklemencic\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\include;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:$(HOMEPATH)\vcpkg\packages\openssl_x64-windows\lib;C:$(HOMEPATH)\vcpkg\packages\freetype_x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:\Users\vklemencic\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\include;C:\Users\vklemencic\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProgramFiles)\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -71,7 +105,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
@@ -92,7 +126,49 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;brotlicommon.lib;zlib.lib;brotlienc.lib;brotlidec.lib;bz2.lib;mariadbcpp-static.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Debug/zdravstvena_evidenca.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Debug/zdravstvena_evidenca.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;brotlicommon.lib;zlib.lib;brotlienc.lib;brotlidec.lib;bz2.lib;mariadbcpp-static.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -115,10 +191,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);ImTextureID=ImU64;_UNICODE;UNICODE;CPPCONN_PUBLIC_FUNC</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -136,10 +212,56 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;mariadbcpp.lib;libssl.lib;libcrypto.lib;freetype.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mariadbcpp-static.lib;mariadbcpp.lib;d3d12.lib;d3dcompiler.lib;dxgi.lib;libssl.lib;libcrypto.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;brotlicommon.lib;zlib.lib;brotlienc.lib;brotlidec.lib;bz2.lib;freetype.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Release/zdravstvena_evidenca.lib</ImportLibrary>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDataBaseFile>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Release/zdravstvena_evidenca.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);ImTextureID=ImU64;_UNICODE;UNICODE;CPPCONN_PUBLIC_FUNC</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;ImTextureID=ImU64;_UNICODE;UNICODE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..;C:\Users\vklemencic\Desktop\zdravstvena_evidenca\..\..\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>mariadbcpp-static.lib;mariadbcpp.lib;d3d12.lib;d3dcompiler.lib;dxgi.lib;libssl.lib;libcrypto.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;brotlicommon.lib;zlib.lib;brotlienc.lib;brotlidec.lib;bz2.lib;freetype.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\MariaDB\MariaDB C++ Connector 64-bit\lib;C:\Users\vklemencic\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>C:/Users/vklemencic/Desktop/zdravstvena_evidenca/Release/zdravstvena_evidenca.lib</ImportLibrary>
       <OptimizeReferences>true</OptimizeReferences>
@@ -152,8 +274,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\menu\menu.cpp" />
+    <ClCompile Include="src\settings\settings.cpp" />
     <ClInclude Include="src\imgui\fonts\icons_fa_awsome.h" />
     <ClInclude Include="src\menu\menu.h" />
+    <ClInclude Include="src\settings\settings.h" />
     <Natvis Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\src\imgui\debuggers\imgui.natvis">
     </Natvis>
     <ClInclude Include="C:\Users\vklemencic\Desktop\zdravstvena_evidenca\resource.h" />
