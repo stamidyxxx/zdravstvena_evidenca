@@ -58,6 +58,9 @@ bool Driver::emso_verify(string emso)
 
 void Driver::MainLoop()
 {
+	driver.m_screen_size = ImGui::GetIO().DisplaySize;
+	GetDatabaseVariables();
+
 	menu.Draw();
 }
 

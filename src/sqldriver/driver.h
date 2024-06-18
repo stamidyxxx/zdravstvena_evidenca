@@ -338,7 +338,7 @@ public:
 	string m_login_error = "";
 	ImVec2 m_screen_size = ImVec2(0, 0);
 
-//private:
+private:
 	sql::Driver* g_sqlDriver = nullptr;
 	sql::Connection* g_sqlConnection = nullptr;
 };

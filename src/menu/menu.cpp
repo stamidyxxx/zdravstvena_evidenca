@@ -5,8 +5,6 @@
 
 void Menu::Draw()
 {
-	driver.m_screen_size = ImGui::GetIO().DisplaySize;
-
 //	driver.m_logged_in = true;
 	if (!driver.m_logged_in)
 	{
@@ -19,8 +17,6 @@ void Menu::Draw()
 	m_selected_tab_doktor = false; 
 	m_selected_tab_zdravilo = false; 
 	m_selected_tab_oddelek = false;
-
-	driver.GetDatabaseVariables();
 
 	if (ImGui::BeginTabBar("##topnavbar"))
 	{
@@ -2039,12 +2035,13 @@ void Menu::DrawNastavitve()
 		if (settings.m_notifications)
 		{
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.25f);
-			ImGui::SliderInt("Dolžina", &settings.m_notification_time, 1, 5, "%ds");
+			ImGui::SliderInt("Dolžina", &settings.m_notification_time, 1, 5, "%ds", ImGuiSliderFlags_NoInput);
 		}
 		
-		if (ImGui::Button("Save"))
+		if (ImGui::Button("Shrani"))
 			settings.Save();
-		if (ImGui::Button("Load"))
+		ImGui::SameLine();
+		if (ImGui::Button("Naloži"))
 			settings.Load();
 
 

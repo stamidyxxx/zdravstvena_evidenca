@@ -16,22 +16,24 @@ void Settings::Save()
 		{"m_notifications", m_notifications},
 		{"m_notification_time", m_notification_time},
 		{"m_saved_username", m_saved_username},
-		{"m_saved_password", m_saved_password}
+		{"m_saved_password", m_saved_password},
 	};
 
-	ofstream file("nastavitve.json", std::ios::out);
+	ofstream file("nastavitve.json");
 	if (file.is_open())
 	{
 		file << settings.dump(4);
 		file.close();
 	}
+#ifdef _DEBUG_
 	else
 		cout << "Error! unable to save file \n";
+#endif
 }
 
 void Settings::Load()
 {
-	ifstream file("nastavitve.json", std::ios::in);
+	ifstream file("nastavitve.json");
 	if (file.is_open())
 	{
 		nlohmann::json settings;
@@ -51,9 +53,11 @@ void Settings::Load()
 		m_font_scale = clamp(m_font_scale, 10, 20);
 		m_notification_time = clamp(m_notification_time, 1, 5);
 	}
+#ifdef _DEBUG_
 	else
 	{
 		Save();
 		cout << "Error! unable to load file";
 	}
+#endif
 }
