@@ -3,9 +3,26 @@
 #include "../imgui/fonts/font_tahoma.h"
 #include "../../resource.h"
 #include "../imgui/imgui_notify.h"
+#include <windows.h>
+#include <psapi.h>
+#include <pdh.h>
+#include <pdhmsg.h>
 
+#pragma comment(lib, "pdh.lib")
+#pragma comment(lib, "psapi.lib")
 
-// Helper functions
+void Handler::GetPcInfo()
+{
+    PROCESS_MEMORY_COUNTERS_EX pmc;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
+        m_working_set_size = pmc.WorkingSetSize / (1024 * 1024); // BYTE -> KB -> MB
+        m_page_file_usage = pmc.PagefileUsage / (1024 * 1024); // BYTE -> KB -> MB
+    }
+
+    SYSTEM_INFO siSysInfo;
+    GetSystemInfo(&siSysInfo);
+    m_cpu_usage = siSysInfo.dwNumberOfProcessors;
+}
 
 bool Handler::CreateDeviceD3D(HWND hWnd)
 {
@@ -299,6 +316,7 @@ int Handler::Run(HINSTANCE hInstance, int nCmdShow, function<void()> func)
     {
         if (!open)
             done = true;
+
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
         MSG msg;
@@ -319,6 +337,8 @@ int Handler::Run(HINSTANCE hInstance, int nCmdShow, function<void()> func)
             continue;
         }
         g_SwapChainOccluded = false;
+
+        GetPcInfo();
 
         ToggleFullscreen();
 
@@ -511,7 +531,7 @@ void Handler::ToggleFullscreen()
     if (!m_window_rect.top || !m_window_rect.right || !m_window_rect.left || !m_window_rect.bottom)
         GetWindowRect(m_hwnd, &m_window_rect);
 
-    static bool prev_fullscreen;
+    static bool prev_fullscreen = !settings.m_is_fullscreen;
     if (prev_fullscreen == settings.m_is_fullscreen)
         return;
 

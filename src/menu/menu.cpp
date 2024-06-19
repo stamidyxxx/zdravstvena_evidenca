@@ -2001,10 +2001,34 @@ void Menu::DrawBolnice()
 
 void Menu::DrawNastavitve()
 {
-	static bool fullscreen = true, anti_aliasing = true;
+	static bool fullscreen = true, anti_aliasing = true, open_popup_info = false, is_open_popup_info = false;
 	const char* barve[] = {"Privzeto", "Temno", "Svetlo"};
-
 	ImGuiStyle& style = ImGui::GetStyle();
+
+	if (open_popup_info)
+	{
+		open_popup_info = false;
+		is_open_popup_info = true;
+		ImGui::OpenPopup("Informacije:##nastavitve");
+	}
+
+	ImGui::SetNextWindowSize(driver.m_screen_size / 4);
+	if (ImGui::BeginPopupModal("Informacije:##nastavitve", &is_open_popup_info, ImGuiWindowFlags_NoResize))
+	{
+		ImGui::Text("Avtor: Luka Branda");
+
+		ImGui::Text("Datum gradnje: %s %s", __DATE__, __TIME__);
+
+		ImGui::Text("Velikost ekrana: %i x %i", handler.m_screen_height, handler.m_screen_width);
+
+		ImGui::Text("Uporabnost RAM-a: %i (%i)", handler.m_working_set_size, handler.m_page_file_usage);
+
+		ImGui::Text("Uporabnost CPU-ja: %d", handler.m_cpu_usage);
+		
+
+		ImGui::EndPopup();
+	}
+	
 	if (ImGui::BeginTabItem("Nastavitve"))
 	{
 		ImGui::Checkbox("Fullscreen", &settings.m_is_fullscreen);
@@ -2044,6 +2068,12 @@ void Menu::DrawNastavitve()
 		if (ImGui::Button("Naloži"))
 			settings.Load();
 
+		auto size = ImGui::CalcTextSize(ICON_FA_INFO);
+		ImGui::SetCursorPosY(ImGui::GetContentRegionAvail().y + ImGui::GetCursorPosY() - size.y * 2);
+		if (ImGui::Button(ICON_FA_INFO))
+		{
+			open_popup_info = true;
+		}
 
 		ImGui::EndTabItem();
 	}

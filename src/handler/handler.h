@@ -24,6 +24,7 @@ public:
 	int Run(HINSTANCE hInstance, int nCmdShow, function<void()> func);
 	void ToggleFullscreen();
 	void SetupFonts(float font_size = 13.f);
+	void GetPcInfo();
 
 	// Data
 	FrameContext				g_frameContext[NUM_FRAMES_IN_FLIGHT];
@@ -48,6 +49,10 @@ public:
 	HINSTANCE m_instance;
 	RECT m_window_rect;
 	ImFont* m_font_arial;
+
+	SIZE_T m_working_set_size;
+	SIZE_T m_page_file_usage;
+	double m_cpu_usage;
 };
 
 extern Handler handler;
